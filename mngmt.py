@@ -45,9 +45,9 @@ def add_sim(imsi):
         }
 
     # Send POST
-    #response = requests.post(url,json=req_body)
-    #print(response)
-    #print(response.content)
+    response = requests.post(url,json=req_body)
+    print(response)
+    print(response.content)
 
 @aether_cli.command()
 @click.pass_context
@@ -74,9 +74,7 @@ def setup_subscriber(ctx,sim_id,device_id,imsi,sd,sn,dn):
     enterprise = ctx.obj['ENTERPRISE']
     site = ctx.obj['SITE']
 
-    #url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/aiab-enterprise/site/aiab-site/sim-card/"+sim_id
     url = roc_api_url + "{e}/site/{s}/sim-card/{sim}".format(e=enterprise,s=site,sim=sim_id)
-    print(url)
 
     req_body = {
         "description": sd,
@@ -86,26 +84,23 @@ def setup_subscriber(ctx,sim_id,device_id,imsi,sd,sn,dn):
         "sim-id": sim_id
         }
 
-    print(req_body)
-
-    #response = requests.post(url, json=req_body)
-    #print(response.content)
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
     
     ###################################################################
 
-    #url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/aiab-enterprise/site/aiab-site/device/"+device_id
     url = roc_api_url + "{e}/site/{s}/device/{device}".format(e=enterprise,s=site,device=device_id)
-    print(url)
 
     req_body = {
         "device-id": device_id,
         "display-name": dn,
         "sim-card": sim_id,
         }
-    print(req_body)
 
-    #response = requests.post(url, json=req_body)
-    #print(response.content)
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
 
 @aether_cli.command()
 @click.pass_context
@@ -124,9 +119,7 @@ def assign_device_group(ctx,device_group,device_id):
     enterprise = ctx.obj['ENTERPRISE']
     site = ctx.obj['SITE']
 
-    #url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/aiab-enterprise/site/aiab-site/device-group/"+dg_id+"/device/"+device_id
     url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{d}".format(e=enterprise,s=site,dg=device_group,d=device_id)
-    print(url)
 
     req_body = {
         "device-id": device_id,
@@ -134,9 +127,9 @@ def assign_device_group(ctx,device_group,device_id):
         }
 
     # Send POST
-    #response = requests.post(url, json=req_body)
-    #print(response.content)
-    print("Added to device group")
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
 
 @aether_cli.command()
 @click.pass_context
@@ -161,9 +154,7 @@ def create_upf(ctx,upf_id,address,config_endpoint,un,ud,up):
     enterprise = ctx.obj['ENTERPRISE']
     site = ctx.obj['SITE']
 
-    #url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/aiab-enterprise/site/aiab-site/upf/"+upf_id
     url = roc_api_url + "{e}/site/{s}/upf/{u}".format(e=enterprise,s=site,u=upf_id)
-    print(url)
 
     req_body = {
         "address": address,
@@ -173,13 +164,13 @@ def create_upf(ctx,upf_id,address,config_endpoint,un,ud,up):
         "port": up,
         "upf-id": upf_id,
         }
-    print(req_body)
 
     # Send POST
-    #response = requests.post(url, json=req_body)
-    #print(response.content)
+    response = requests.post(url, json=req_body)
+    print(respone)
+    print(response.content)
 
-# TODO: Add multople device groups to a slice
+# TODO: Add multiple device groups to a slice
 @aether_cli.command()
 @click.pass_context
 @click.argument('slice-id', nargs=1, type=click.STRING)
@@ -213,9 +204,7 @@ def create_slice(ctx,slice_id,device_group,service_differentiator,slice_service_
     enterprise = ctx.obj['ENTERPRISE']
     site = ctx.obj['SITE']
 
-    #url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/aiab-enterprise/site/aiab-site/slice/"+slice_id
     url = roc_api_url + "{e}/site/{s}/slice/{sl}".format(e=enterprise,s=site,sl=slice_id)
-    print(url)
 
     req_body = {
         "connectivity-service": "5g",
@@ -240,29 +229,26 @@ def create_slice(ctx,slice_id,device_group,service_differentiator,slice_service_
         "sst": slice_service_type,
         "upf": upf_id,
         }
-    print(req_body)
-
 
     # Send POST
-    #response = requests.post(url, json=req_body)
-    #print(response)
-    #print(response.content)
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
 
 @aether_cli.command()
 @click.pass_context
 def get_site(ctx):
-
     """
-    Get a description of all the sites associated to an enterprise
+    Get a description of all the sites of an enterprise.
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
     enterprise = ctx.obj['ENTERPRISE']
 
     url = roc_api_url + "{e}/site".format(e=enterprise)
-    #response = requests.get(url)
-    #print(response)
-    #print(response.content)
+    response = requests.get(url)
+    print(response)
+    print(response.content)
 
 if __name__ == '__main__':
     aether_cli()
