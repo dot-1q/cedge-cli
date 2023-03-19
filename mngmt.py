@@ -1,5 +1,4 @@
 import requests
-import time
 import click
 
 """
@@ -7,6 +6,9 @@ Example of an endpoint with enterprise and site
 http://localhost:31194/aether-roc-api/aether/v2.1.x/aiab-enterprise/site/aiab-site/sim-card/
 """
 
+# Base API URL
+# This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
+# that on an Aether Standalone deployment the API port will be different.
 roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
 
 @click.group()
@@ -27,14 +29,22 @@ def aether_cli(ctx,enterprise,site):
 
 @aether_cli.command()
 @click.argument('imsi', nargs=1, type=click.INT)
-def add_sim(imsi):
+@click.argument('address', nargs=1, type=click.STRING)
+@click.option('--port',default=5000,type=click.INT,help='Subscriber config service Port',show_default=True)
+def add_sim(imsi,address,port):
     """
     Add a subscriber to Aether's core. An imsi sim card number should be provided.
 
+    You can find the address of the config server by running 'kubectl get svc -n omec' and noting
+    the 'webui' IP address.
+
     IMSI is a 15 digit sim card number. ex: '208930000000000'
+
+    ADDRESS is the address of the subscriber config server.
     """
     # SD-Core subscriber's provisioning api endpoint.
-    url = "http://192.168.85.136:5000/api/subscriber/imsi-"+str(imsi)
+    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(a=address,p=port,i=imsi)
+    print(url)
 
     req_body = {
         "UeId":str(imsi),
