@@ -25,10 +25,14 @@ def aether_cli(ctx, enterprise, site):
 
 
 @aether_cli.command()
-@click.argument('imsi', nargs=1, type=click.INT)
+@click.argument('imsi', nargs=1, type=click.STRING)
+@click.argument('plmn', nargs=1, type=click.STRING)
 @click.argument('address', nargs=1, type=click.STRING)
 @click.option('--port', default=5000, type=click.INT, help='Subscriber config service Port', show_default=True)
-def add_sim(imsi, address, port):
+@click.option('--opc', default="981d464c7c52eb6e5036234984ad0bcf", type=click.STRING, help='OPC code', show_default=True)
+@click.option('--key', default="5122250214c33e723a5dd523fc145fc0", type=click.STRING, help='Key code', show_default=True)
+@click.option('--sqn', default="16f3b3f70fc2", type=click.STRING, help='Sequence number', show_default=True)
+def add_sim(imsi, plmn, address, port, opc, key, sqn):
     """
     Add a subscriber to Aether's core. An imsi sim card number should be provided.
 
@@ -37,19 +41,20 @@ def add_sim(imsi, address, port):
 
     IMSI is a 15 digit sim card number. ex: '208930000000000'
 
+    PLMN is the PLMN code. ex: '20893'
+
     ADDRESS is the address of the subscriber config server.
     """
     # SD-Core subscriber's provisioning api endpoint.
     url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(
         a=address, p=port, i=imsi)
-    print(url)
 
     req_body = {
-        "UeId": str(imsi),
-        "plmnId": "20893",
-        "opc": "981d464c7c52eb6e5036234984ad0bcf",
-        "key": "5122250214c33e723a5dd523fc145fc0",
-        "sequenceNumber": "16f3b3f70fc2"
+        "UeId": imsi,
+        "plmnId": plmn,
+        "opc": opc,
+        "key": key,
+        "sequenceNumber": sqn
     }
 
     # Send POST
@@ -61,23 +66,26 @@ def add_sim(imsi, address, port):
 @aether_cli.command()
 @click.pass_context
 @click.argument('sim-id', nargs=1, type=click.STRING)
-@click.argument('device-id', nargs=1, type=click.STRING)
 @click.argument('imsi', nargs=1, type=click.STRING)
+@click.argument('device-id', nargs=1, type=click.STRING)
+@click.argument('device-group', nargs=1, type=click.STRING)
 @click.option('--sd', default="New Sim Card", type=click.STRING, help='Sim card description', show_default=True)
 @click.option('--sn', default="New UE Sim", type=click.STRING, help='Sim card name', show_default=True)
 @click.option('--dn', default="New Device", type=click.STRING, help='Device name', show_default=True)
-def setup_sim(ctx, sim_id, device_id, imsi, sd, sn, dn):
+def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn):
     """
-    Add a new sim card and device associated to it.
+    Add a new sim card, device and assign it to device group.
     This can only be done to sim card numbers that have been previously added to the ROC Core.
     Sim card name, description and device name values all have default values but they can be passed
     as optional arguments.
 
     SIM_ID is a unique sim identifier. ex: 'sim-12345'
 
+    IMSI is the sim card number. ex: '208930000000000'
+
     DEVICE_ID is a unique device identifier. ex: 'device-12345'
 
-    IMSI is the sim card number. ex: '208930000000000'
+    DEVICE_GROUP is the device-group identifier. ex: 'dg4'.
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -95,6 +103,7 @@ def setup_sim(ctx, sim_id, device_id, imsi, sd, sn, dn):
         "sim-id": sim_id
     }
 
+    # Create SIM
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
@@ -111,27 +120,12 @@ def setup_sim(ctx, sim_id, device_id, imsi, sd, sn, dn):
         "sim-card": sim_id,
     }
 
+    # Create Device
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
 
-
-@aether_cli.command()
-@click.pass_context
-@click.argument('device-group', nargs=1, type=click.STRING)
-@click.argument('device-id', nargs=1, type=click.STRING)
-def assign_device_group(ctx, device_group, device_id):
-    """
-    Assign a device to a device group.
-
-    DEVICE_ID is the device identifier. ex: 'device-12345'.
-
-    DEVICE_GROUP is the device-group identifier. ex: 'dg4'.
-    """
-
-    # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
-    site = ctx.obj['SITE']
+    # 3
 
     url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{d}".format(
         e=enterprise, s=site, dg=device_group, d=device_id)
@@ -141,7 +135,7 @@ def assign_device_group(ctx, device_group, device_id):
         "enable": True
     }
 
-    # Send POST
+    # Assign to device group
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
