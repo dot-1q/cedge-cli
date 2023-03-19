@@ -72,7 +72,8 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
 @click.option('--sd', default="New Sim Card", type=click.STRING, help='Sim card description', show_default=True)
 @click.option('--sn', default="New UE Sim", type=click.STRING, help='Sim card name', show_default=True)
 @click.option('--dn', default="New Device", type=click.STRING, help='Device name', show_default=True)
-def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn):
+@click.option('--dd', default="UE Device", type=click.STRING, help='Device description', show_default=True)
+def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     """
     Add a new sim card, device and assign it to device group.
     This can only be done to sim card numbers that have been previously added to the ROC Core.
@@ -99,6 +100,7 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn):
         "description": sd,
         "display-name": sn,
         "enable": True,
+        # "iccid": "string", # Not using this at the moment.
         "imsi": imsi,
         "sim-id": sim_id
     }
@@ -115,8 +117,10 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn):
                                               s=site, device=device_id)
 
     req_body = {
+        "description": dd,
         "device-id": device_id,
         "display-name": dn,
+        # "imei": "string", # Not using this at the moment.
         "sim-card": sim_id,
     }
 
@@ -178,10 +182,8 @@ def create_upf(ctx, upf_id, address, config_endpoint, un, ud, up):
 
     # Send POST
     response = requests.post(url, json=req_body)
-    print(respone)
+    print(response)
     print(response.content)
-
-# TODO: Add multiple device groups to a slice
 
 
 @aether_cli.command()
@@ -197,6 +199,7 @@ def create_upf(ctx, upf_id, address, config_endpoint, un, ud, up):
 @click.option('--mbr_dl_bs', default=625000, type=click.INT, help='Slice MBR Downlink Burst Size', show_default=True)
 @click.option('--mbr_ul', default=100000000, type=click.INT, help='Slice Maximum Bit Rate Uplink', show_default=True)
 @click.option('--mbr_ul_bs', default=625000, type=click.INT, help='Slice MBR Uplink Burst Size', show_default=True)
+# TODO: Add multiple device groups to a slice
 def create_slice(ctx, slice_id, device_group, service_differentiator, slice_service_type, upf_id, sn, sd, mbr_dl, mbr_dl_bs, mbr_ul, mbr_ul_bs):
     """
     Create a new Slice. Each Slice must be in only one site and must only have one UPF. Multiple device groups 
@@ -243,6 +246,111 @@ def create_slice(ctx, slice_id, device_group, service_differentiator, slice_serv
         "sst": slice_service_type,
         "upf": upf_id,
     }
+
+    # Send POST
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
+
+
+@aether_cli.command()
+@click.pass_context
+@click.argument('device_group_id', nargs=1, type=click.STRING)
+@click.argument('traffic_class', nargs=1, type=click.STRING)
+@click.argument('ip_domain', nargs=1, type=click.STRING)
+@click.argument('device-id', nargs=1, type=click.STRING)
+@click.option('--dgn', default="Device Group", type=click.STRING, help='Device Group Name', show_default=True)
+@click.option('--dgd', default="Device Group for UE's", type=click.STRING, help='Device Group Description', show_default=True)
+@click.option('--mbr_dl', default=20000000, type=click.INT, help='Device Group MBR Dowlink', show_default=True)
+@click.option('--mbr_ul', default=20000000, type=click.INT, help='Device Group MBR Uplink', show_default=True)
+# TODO: Allow passing multiple device id's
+def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_id, dgn, dgd, mbr_dl, mbr_ul):
+    """
+    Create a new device group.
+
+    DEVICE_GROUP_ID must be an unique idenfitifer. ex: "devgroup1" 
+
+    TRAFFIC_CLASS is the ID of the traffic class this group belongs to. ex: "class-1"
+
+    IP_DOMAIN is the ID of the IP pool from where these devices get their addresses from. ex: "pool5"
+
+    DEVICE_ID is the ID of a device that belongs to this group.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+    site = ctx.obj['SITE']
+
+    url = roc_api_url + \
+        "{e}/site/{s}/device-group/{dg}".format(
+            e=enterprise, s=site, dg=device_group_id)
+
+    req_body = {
+        "description": dgd,
+        "device": [
+            {
+                "device-id": device_id,
+                "enable": True
+            }
+            # TODO: Multiple device id's go here
+        ],
+        "device-group-id": device_group_id,
+        "display-name": dgn,
+        "ip-domain": ip_domain,
+        "mbr": {
+            "downlink": mbr_dl,
+            "uplink": mbr_ul,
+        },
+        "traffic-class": traffic_class,
+    }
+
+    # Send POST
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
+
+
+@aether_cli.command()
+@click.pass_context
+@click.argument('ip-pool-id', nargs=1, type=click.STRING)
+@click.argument('dnn', nargs=1, type=click.STRING)
+@click.argument('subnet', nargs=1, type=click.STRING)
+@click.argument('mtu', nargs=1, type=click.INT)
+@click.option('--ipn', default="IP pool", type=click.STRING, help='IP pool name', show_default=True)
+@click.option('--ipd', default="IP addresses for UE's", type=click.STRING, help='IP pool description', show_default=True)
+@click.option('--dnsp', default="1.1.1.1", type=click.STRING, help='Primary DNS server', show_default=True)
+@click.option('--dnss', default="1.0.0.1", type=click.STRING, help='Secondary DNS server', show_default=True)
+def create_ip_pool(ctx,ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
+    """
+    Create a new IP pool of addresses for UE's.
+
+    IP_POOL_ID is a unique identifier for this IP pool. ex: "pool5"
+
+    DNN is  the Data Network Name for this pool. ex: "internet"
+
+    SUBNET is the range of IP addresses. ex: "172.5.0.0/16"
+
+    MTU is the maximum transmission unit value. ex: 1450
+    """
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+    site = ctx.obj['SITE']
+
+    url = roc_api_url + \
+        "{e}/site/{s}/ip-domain/{id}".format(
+            e=enterprise, s=site, id=ip_pool_id)
+
+    req_body = {
+        "admin-status": "ENABLE",
+        "description": ipd,
+        "display-name": ipn,
+        "dnn": dnn,
+        "dns-primary": dnsp,
+        "dns-secondary": dnss,
+        "ip-domain-id": ip_pool_id,
+        "mtu": mtu,
+        "subnet": subnet,
+        }
 
     # Send POST
     response = requests.post(url, json=req_body)

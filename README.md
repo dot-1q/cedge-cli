@@ -35,16 +35,17 @@ Options:
 
 Commands:
   add-sim              Add a subscriber to Aether's core.
-  assign-device-group  Assign a device to a device group.
+  create-device-group  Create a new device group.
+  create-ip-pool       Create a new IP pool of addresses for UE's.
   create-slice         Create a new Slice.
   create-upf           Create a new UPF.
   get-site             Get a description of all the sites of an enterprise.
-  setup-sim            Add a new sim card and device associated to it.
+  setup-ue             Add a new sim card, device and assign it to device...
 ```
 All the commands require you to provide a enterprise and site name, as all API calls require it.
 Ex:
 ```
-python3 mngmt.py ename sname setup-sim newsim newdevice 208930000000000
+python3 mngmt.py ename sname setup-ue newsim 208930000000000 newdevice deviecgroup
 ```
 
 This is an example of a command which provides optional arguments. The help page for this specific command is in the Help section below.
@@ -93,4 +94,5 @@ Options:
 
 ## TODO
 As is stands, this tool does not yet do any sanity checks on input, meaning for example, if you were to create a sim card and add it to a device group that
-doesn't exist, it wouldn't stop you from doing so. This is future work as well as adding commands.
+doesn't exist, it wouldn't stop you from doing so. This is future work as well as adding more commands.
+There will also be an option to, upon creating a new UPF in the ROC, to deploy it in a k8s cluster, be it on the same cluster, or in a different one.
