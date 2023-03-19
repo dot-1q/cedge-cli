@@ -60,7 +60,7 @@ You can bring up the definition and help documentation of any command by doing:
 python3 mngmt.py ename sname COMMAND --help
 ```
 
-Example output of command _python3 mngmt.py ename sname create-slice --help_
+Example output of command: _python3 mngmt.py ename sname create-slice --help_
 ```
 Usage: mngmt.py ENTERPRISE SITE create-slice [OPTIONS] SLICE_ID DEVICE_GROUP
                                              SERVICE_DIFFERENTIATOR
@@ -90,3 +90,7 @@ Options:
   --mbr_ul_bs INTEGER  Slice MBR Uplink Burst Size  [default: 625000]
   --help               Show this message and exit.
 ```
+
+## TODO
+As is stands, this tool does not yet do any sanity checks on input, meaning for example, if you were to create a sim card and add it to a device group that
+doesn't exist, it wouldn't stop you from doing so. This is future work as well as adding commands.
