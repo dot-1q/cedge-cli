@@ -373,6 +373,87 @@ def get_site(ctx):
     print(response)
     print(response.content)
 
+@aether_cli.command()
+@click.pass_context
+def list_devices(ctx):
+    """
+    List all devices of a given device group.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+
+
+@aether_cli.command()
+@click.pass_context
+def list_device_groups(ctx):
+    """
+    List all device groups
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+
+
+@aether_cli.command()
+@click.pass_context
+def list_sim_cards(ctx):
+    """
+    List all sim cards of a given Enterprise and site.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+
+
+@aether_cli.command()
+@click.pass_context
+def list_slices(ctx):
+    """
+    List all slices.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+
+
+@aether_cli.command()
+@click.pass_context
+def list_upfs(ctx):
+    """
+    List all upfs.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+
+
+@aether_cli.command()
+@click.pass_context
+def list_ip_pools(ctx):
+    """
+    List all IP pools.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj['ENTERPRISE']
+
+@click.command()
+def get_argocd_token():
+    """
+    Get Bearer ArgoCD API token
+    """
+
+    url = "localhost:30001/api/v1/session"
+
+    req_body = {
+        "username": "admin",
+        "password": "XXXXXXXX"
+    }
+
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
 
 if __name__ == '__main__':
     aether_cli()
