@@ -1,5 +1,6 @@
 import requests
 import click
+import json
 
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
@@ -438,22 +439,43 @@ def list_ip_pools(ctx):
     # Grab the enterprise and site from the command line for the api endpoint
     enterprise = ctx.obj['ENTERPRISE']
 
-@click.command()
 def get_argocd_token():
     """
     Get Bearer ArgoCD API token
     """
 
-    url = "localhost:30001/api/v1/session"
+    url = "https://localhost:30001/api/v1/session"
 
+    # This loads the file that contains the ArgoCD secrets
+    # You should create a file with the same name that has your 
+    # Username and password
+    import argocd_secrets
     req_body = {
-        "username": "admin",
-        "password": "XXXXXXXX"
+        "username": argocd_secrets.username,
+        "password": argocd_secrets.password
     }
 
-    response = requests.post(url, json=req_body)
+    response = requests.post(url,json=req_body,verify=False)
+    
+    # Return the token value
+    return json.loads(response.text)['token']
+
+def get_apps():
+    url = "https://localhost:30001/api/v1/applications/edge-site1-upf1"
+
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer '+ token,
+    }
+
+    print(headers)
+
+    response = requests.get(url,headers=headers,verify=False)
     print(response)
     print(response.content)
 
 if __name__ == '__main__':
-    aether_cli()
+    get_apps()
+    #aether_cli()
+    
+
