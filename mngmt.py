@@ -1,6 +1,6 @@
 import requests
 import click
-import json
+import os
 
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
@@ -151,10 +151,16 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 @click.argument('upf-id', nargs=1, type=click.STRING)
 @click.argument('address', nargs=1, type=click.STRING)
 @click.argument('config_endpoint', nargs=1, type=click.STRING)
+@click.argument('repo', nargs=1, type=click.STRING)
+@click.argument('path', nargs=1, type=click.STRING)
+@click.argument('cluster', nargs=1, type=click.STRING)
+@click.argument('values', nargs=1, type=click.STRING)
 @click.option('--un', default="UPF", type=click.STRING, help='UPF Name', show_default=True)
 @click.option('--ud', default="User Plane Function", type=click.STRING, help='UPF Description', show_default=True)
 @click.option('--up', default=8805, type=click.INT, help='UPF Port', show_default=True)
-def create_upf(ctx, upf_id, address, config_endpoint, un, ud, up):
+@click.option('--an', default="edge-site-upf", type=click.STRING, help='App deployment name', show_default=True)
+@click.option('--ap', default="default", type=click.STRING, help='App deployment project', show_default=True)
+def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, values, un, ud, up, an, ap):
     """
     Create a new UPF. Each UPF can only be associated with a single site and slice.
 
@@ -163,6 +169,14 @@ def create_upf(ctx, upf_id, address, config_endpoint, un, ud, up):
     ADDRESS is the address of the UPF. ex: "10.10.1.4"
 
     CONFIG_ENDPOINT is the address of the config endpoint of the UPF. ex: "http://10.10.1.4:8080"
+
+    REPO is the address of the github repo where the upf helm chart is. ex: "https://github.com/dot-1q/5g_connected_edge.git"
+
+    PATH is the path of the folder where the helm chart is. ex: "site3/upf4_helm"
+
+    CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
+
+    VALUES is the name of the override helm chart values file. ex: "values_upf4.yaml"
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -185,6 +199,20 @@ def create_upf(ctx, upf_id, address, config_endpoint, un, ud, up):
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
+
+    # Use the Argocd CLI to create the app
+    os.system("argocd app create {appname} \
+              --repo {r} \
+              --project {ap} \
+              --path {p} \
+              --dest-namespace {dns} \
+              --dest-server {ds} \
+              --values {v} \
+              --self-heal \
+              --sync-policy auto \
+              --sync-option CreateNamespace=true".format(appname=an, r=repo, ap=ap, p=path, dns=upf_id, ds=cluster, v=values))
+    
+    print("Created UPF deployment")
 
 
 @aether_cli.command()
@@ -321,7 +349,7 @@ def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_i
 @click.option('--ipd', default="IP addresses for UE's", type=click.STRING, help='IP pool description', show_default=True)
 @click.option('--dnsp', default="1.1.1.1", type=click.STRING, help='Primary DNS server', show_default=True)
 @click.option('--dnss', default="1.0.0.1", type=click.STRING, help='Secondary DNS server', show_default=True)
-def create_ip_pool(ctx,ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
+def create_ip_pool(ctx, ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
     """
     Create a new IP pool of addresses for UE's.
 
@@ -351,7 +379,7 @@ def create_ip_pool(ctx,ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
         "ip-domain-id": ip_pool_id,
         "mtu": mtu,
         "subnet": subnet,
-        }
+    }
 
     # Send POST
     response = requests.post(url, json=req_body)
@@ -373,6 +401,7 @@ def get_site(ctx):
     response = requests.get(url)
     print(response)
     print(response.content)
+
 
 @aether_cli.command()
 @click.pass_context
@@ -439,43 +468,12 @@ def list_ip_pools(ctx):
     # Grab the enterprise and site from the command line for the api endpoint
     enterprise = ctx.obj['ENTERPRISE']
 
-def get_argocd_token():
-    """
-    Get Bearer ArgoCD API token
-    """
 
-    url = "https://localhost:30001/api/v1/session"
+@aether_cli.command()
+@click.pass_context
+def get_apps(ctx):
+    os.system('argocd app list')
 
-    # This loads the file that contains the ArgoCD secrets
-    # You should create a file with the same name that has your 
-    # Username and password
-    import argocd_secrets
-    req_body = {
-        "username": argocd_secrets.username,
-        "password": argocd_secrets.password
-    }
-
-    response = requests.post(url,json=req_body,verify=False)
-    
-    # Return the token value
-    return json.loads(response.text)['token']
-
-def get_apps():
-    url = "https://localhost:30001/api/v1/applications/edge-site1-upf1"
-
-    token = get_argocd_token()
-    headers = {
-        'Authorization': 'Bearer '+ token,
-    }
-
-    print(headers)
-
-    response = requests.get(url,headers=headers,verify=False)
-    print(response)
-    print(response.content)
 
 if __name__ == '__main__':
-    get_apps()
-    #aether_cli()
-    
-
+    aether_cli()
