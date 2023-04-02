@@ -9,8 +9,8 @@ roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
 
 
 @click.group()
-@click.argument('enterprise', nargs=1, type=click.STRING)
-@click.argument('site', nargs=1, type=click.STRING)
+@click.argument("enterprise", nargs=1, type=click.STRING)
+@click.argument("site", nargs=1, type=click.STRING)
 @click.pass_context
 def aether_cli(ctx, enterprise, site):
     """
@@ -21,18 +21,42 @@ def aether_cli(ctx, enterprise, site):
     ctx.ensure_object(dict)
 
     # Pass the enterprise and site to all the sub commands. We need them for the API endpoint
-    ctx.obj['ENTERPRISE'] = enterprise
-    ctx.obj['SITE'] = site
+    ctx.obj["ENTERPRISE"] = enterprise
+    ctx.obj["SITE"] = site
 
 
 @aether_cli.command()
-@click.argument('imsi', nargs=1, type=click.STRING)
-@click.argument('plmn', nargs=1, type=click.STRING)
-@click.argument('address', nargs=1, type=click.STRING)
-@click.option('--port', default=5000, type=click.INT, help='Subscriber config service Port', show_default=True)
-@click.option('--opc', default="981d464c7c52eb6e5036234984ad0bcf", type=click.STRING, help='OPC code', show_default=True)
-@click.option('--key', default="5122250214c33e723a5dd523fc145fc0", type=click.STRING, help='Key code', show_default=True)
-@click.option('--sqn', default="16f3b3f70fc2", type=click.STRING, help='Sequence number', show_default=True)
+@click.argument("imsi", nargs=1, type=click.STRING)
+@click.argument("plmn", nargs=1, type=click.STRING)
+@click.argument("address", nargs=1, type=click.STRING)
+@click.option(
+    "--port",
+    default=5000,
+    type=click.INT,
+    help="Subscriber config service Port",
+    show_default=True,
+)
+@click.option(
+    "--opc",
+    default="981d464c7c52eb6e5036234984ad0bcf",
+    type=click.STRING,
+    help="OPC code",
+    show_default=True,
+)
+@click.option(
+    "--key",
+    default="5122250214c33e723a5dd523fc145fc0",
+    type=click.STRING,
+    help="Key code",
+    show_default=True,
+)
+@click.option(
+    "--sqn",
+    default="16f3b3f70fc2",
+    type=click.STRING,
+    help="Sequence number",
+    show_default=True,
+)
 def add_sim(imsi, plmn, address, port, opc, key, sqn):
     """
     Add a subscriber to Aether's core. An imsi sim card number should be provided.
@@ -47,15 +71,14 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
     ADDRESS is the address of the subscriber config server.
     """
     # SD-Core subscriber's provisioning api endpoint.
-    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(
-        a=address, p=port, i=imsi)
+    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(a=address, p=port, i=imsi)
 
     req_body = {
         "UeId": imsi,
         "plmnId": plmn,
         "opc": opc,
         "key": key,
-        "sequenceNumber": sqn
+        "sequenceNumber": sqn,
     }
 
     # Send POST
@@ -66,14 +89,38 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
 
 @aether_cli.command()
 @click.pass_context
-@click.argument('sim-id', nargs=1, type=click.STRING)
-@click.argument('imsi', nargs=1, type=click.STRING)
-@click.argument('device-id', nargs=1, type=click.STRING)
-@click.argument('device-group', nargs=1, type=click.STRING)
-@click.option('--sd', default="New Sim Card", type=click.STRING, help='Sim card description', show_default=True)
-@click.option('--sn', default="New UE Sim", type=click.STRING, help='Sim card name', show_default=True)
-@click.option('--dn', default="New Device", type=click.STRING, help='Device name', show_default=True)
-@click.option('--dd', default="UE Device", type=click.STRING, help='Device description', show_default=True)
+@click.argument("sim-id", nargs=1, type=click.STRING)
+@click.argument("imsi", nargs=1, type=click.STRING)
+@click.argument("device-id", nargs=1, type=click.STRING)
+@click.argument("device-group", nargs=1, type=click.STRING)
+@click.option(
+    "--sd",
+    default="New Sim Card",
+    type=click.STRING,
+    help="Sim card description",
+    show_default=True,
+)
+@click.option(
+    "--sn",
+    default="New UE Sim",
+    type=click.STRING,
+    help="Sim card name",
+    show_default=True,
+)
+@click.option(
+    "--dn",
+    default="New Device",
+    type=click.STRING,
+    help="Device name",
+    show_default=True,
+)
+@click.option(
+    "--dd",
+    default="UE Device",
+    type=click.STRING,
+    help="Device description",
+    show_default=True,
+)
 def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     """
     Add a new sim card, device and assign it to device group.
@@ -91,11 +138,12 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
-    site = ctx.obj['SITE']
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
 
-    url = roc_api_url + \
-        "{e}/site/{s}/sim-card/{sim}".format(e=enterprise, s=site, sim=sim_id)
+    url = roc_api_url + "{e}/site/{s}/sim-card/{sim}".format(
+        e=enterprise, s=site, sim=sim_id
+    )
 
     req_body = {
         "description": sd,
@@ -103,7 +151,7 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
         "enable": True,
         # "iccid": "string", # Not using this at the moment.
         "imsi": imsi,
-        "sim-id": sim_id
+        "sim-id": sim_id,
     }
 
     # Create SIM
@@ -113,9 +161,9 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 
     ###################################################################
 
-    url = roc_api_url + \
-        "{e}/site/{s}/device/{device}".format(e=enterprise,
-                                              s=site, device=device_id)
+    url = roc_api_url + "{e}/site/{s}/device/{device}".format(
+        e=enterprise, s=site, device=device_id
+    )
 
     req_body = {
         "description": dd,
@@ -133,12 +181,10 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     # 3
 
     url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{d}".format(
-        e=enterprise, s=site, dg=device_group, d=device_id)
+        e=enterprise, s=site, dg=device_group, d=device_id
+    )
 
-    req_body = {
-        "device-id": device_id,
-        "enable": True
-    }
+    req_body = {"device-id": device_id, "enable": True}
 
     # Assign to device group
     response = requests.post(url, json=req_body)
@@ -148,19 +194,53 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 
 @aether_cli.command()
 @click.pass_context
-@click.argument('upf-id', nargs=1, type=click.STRING)
-@click.argument('address', nargs=1, type=click.STRING)
-@click.argument('config_endpoint', nargs=1, type=click.STRING)
-@click.argument('repo', nargs=1, type=click.STRING)
-@click.argument('path', nargs=1, type=click.STRING)
-@click.argument('cluster', nargs=1, type=click.STRING)
-@click.argument('values', nargs=1, type=click.STRING)
-@click.option('--un', default="UPF", type=click.STRING, help='UPF Name', show_default=True)
-@click.option('--ud', default="User Plane Function", type=click.STRING, help='UPF Description', show_default=True)
-@click.option('--up', default=8805, type=click.INT, help='UPF Port', show_default=True)
-@click.option('--an', default="edge-site-upf", type=click.STRING, help='App deployment name', show_default=True)
-@click.option('--ap', default="default", type=click.STRING, help='App deployment project', show_default=True)
-def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, values, un, ud, up, an, ap):
+@click.argument("upf-id", nargs=1, type=click.STRING)
+@click.argument("address", nargs=1, type=click.STRING)
+@click.argument("config_endpoint", nargs=1, type=click.STRING)
+@click.argument("repo", nargs=1, type=click.STRING)
+@click.argument("path", nargs=1, type=click.STRING)
+@click.argument("cluster", nargs=1, type=click.STRING)
+@click.argument("values", nargs=1, type=click.STRING)
+@click.option(
+    "--un", default="UPF", type=click.STRING, help="UPF Name", show_default=True
+)
+@click.option(
+    "--ud",
+    default="User Plane Function",
+    type=click.STRING,
+    help="UPF Description",
+    show_default=True,
+)
+@click.option("--up", default=8805, type=click.INT, help="UPF Port", show_default=True)
+@click.option(
+    "--an",
+    default="site-upf",
+    type=click.STRING,
+    help="App deployment name",
+    show_default=True,
+)
+@click.option(
+    "--ap",
+    default="default",
+    type=click.STRING,
+    help="App deployment project",
+    show_default=True,
+)
+def create_upf(
+    ctx,
+    upf_id,
+    address,
+    config_endpoint,
+    repo,
+    path,
+    cluster,
+    values,
+    un,
+    ud,
+    up,
+    an,
+    ap,
+):
     """
     Create a new UPF. Each UPF can only be associated with a single site and slice.
 
@@ -180,11 +260,10 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
-    site = ctx.obj['SITE']
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
 
-    url = roc_api_url + \
-        "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
+    url = roc_api_url + "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
 
     req_body = {
         "address": address,
@@ -200,8 +279,9 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
     print(response)
     print(response.content)
 
-    # Use the Argocd CLI to create the app
-    os.system("argocd app create {appname} \
+    # Use the Argocd CLI to create the upf app deployment
+    os.system(
+        "argocd app create {appname} \
               --repo {r} \
               --project {ap} \
               --path {p} \
@@ -210,35 +290,83 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
               --values {v} \
               --self-heal \
               --sync-policy auto \
-              --sync-option CreateNamespace=true".format(appname=an, r=repo, ap=ap, p=path, dns=upf_id, ds=cluster, v=values))
-    
+              --sync-option CreateNamespace=true".format(
+            appname=an, r=repo, ap=ap, p=path, dns=upf_id, ds=cluster, v=values
+        )
+    )
+
     print("Created UPF deployment")
 
 
 @aether_cli.command()
 @click.pass_context
-@click.argument('slice-id', nargs=1, type=click.STRING)
-@click.argument('device-group', nargs=1, type=click.STRING)
-@click.argument('service-differentiator', nargs=1, type=click.STRING)
-@click.argument('slice-service-type', nargs=1, type=click.STRING)
-@click.argument('upf_id', nargs=1, type=click.STRING)
-@click.option('--sn', default="Slice", type=click.STRING, help='Slice Name', show_default=True)
-@click.option('--sd', default="Network Slice", type=click.STRING, help='Slice Description', show_default=True)
-@click.option('--mbr_dl', default=100000000, type=click.INT, help='Slice Maximum Bit Rate Downlink', show_default=True)
-@click.option('--mbr_dl_bs', default=625000, type=click.INT, help='Slice MBR Downlink Burst Size', show_default=True)
-@click.option('--mbr_ul', default=100000000, type=click.INT, help='Slice Maximum Bit Rate Uplink', show_default=True)
-@click.option('--mbr_ul_bs', default=625000, type=click.INT, help='Slice MBR Uplink Burst Size', show_default=True)
+@click.argument("slice-id", nargs=1, type=click.STRING)
+@click.argument("device-group", nargs=1, type=click.STRING)
+@click.argument("service-differentiator", nargs=1, type=click.STRING)
+@click.argument("slice-service-type", nargs=1, type=click.STRING)
+@click.argument("upf_id", nargs=1, type=click.STRING)
+@click.option(
+    "--sn", default="Slice", type=click.STRING, help="Slice Name", show_default=True
+)
+@click.option(
+    "--sd",
+    default="Network Slice",
+    type=click.STRING,
+    help="Slice Description",
+    show_default=True,
+)
+@click.option(
+    "--mbr_dl",
+    default=100000000,
+    type=click.INT,
+    help="Slice Maximum Bit Rate Downlink",
+    show_default=True,
+)
+@click.option(
+    "--mbr_dl_bs",
+    default=625000,
+    type=click.INT,
+    help="Slice MBR Downlink Burst Size",
+    show_default=True,
+)
+@click.option(
+    "--mbr_ul",
+    default=100000000,
+    type=click.INT,
+    help="Slice Maximum Bit Rate Uplink",
+    show_default=True,
+)
+@click.option(
+    "--mbr_ul_bs",
+    default=625000,
+    type=click.INT,
+    help="Slice MBR Uplink Burst Size",
+    show_default=True,
+)
 # TODO: Add multiple device groups to a slice
-def create_slice(ctx, slice_id, device_group, service_differentiator, slice_service_type, upf_id, sn, sd, mbr_dl, mbr_dl_bs, mbr_ul, mbr_ul_bs):
+def create_slice(
+    ctx,
+    slice_id,
+    device_group,
+    service_differentiator,
+    slice_service_type,
+    upf_id,
+    sn,
+    sd,
+    mbr_dl,
+    mbr_dl_bs,
+    mbr_ul,
+    mbr_ul_bs,
+):
     """
-    Create a new Slice. Each Slice must be in only one site and must only have one UPF. Multiple device groups 
-    may be added to the slice, but this version does not yet support this. 
+    Create a new Slice. Each Slice must be in only one site and must only have one UPF. Multiple device groups
+    may be added to the slice, but this version does not yet support this.
 
     SLICE_ID is a unique indentifier for the slice. ex: "slice4"
 
     DEVICE_GROUP is the device group ID associated to this slice. ex: "dg4"
 
-    SERVICE_DIFFERENTIATOR is a 6 HEX characters value for the slice. ex: "040404" 
+    SERVICE_DIFFERENTIATOR is a 6 HEX characters value for the slice. ex: "040404"
 
     SLICE_SERVICE_TYPE is SST value between 1-255. ex: "4"
 
@@ -246,21 +374,19 @@ def create_slice(ctx, slice_id, device_group, service_differentiator, slice_serv
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
-    site = ctx.obj['SITE']
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
 
-    url = roc_api_url + \
-        "{e}/site/{s}/slice/{sl}".format(e=enterprise, s=site, sl=slice_id)
+    url = roc_api_url + "{e}/site/{s}/slice/{sl}".format(
+        e=enterprise, s=site, sl=slice_id
+    )
 
     req_body = {
         "connectivity-service": "5g",
         "default-behavior": "ALLOW-ALL",
         "description": sd,
         "device-group": [
-            {
-                "device-group": device_group,
-                "enable": True
-            }
+            {"device-group": device_group, "enable": True}
             # TODO: Multiple device groups go here
         ],
         "display-name": sn,
@@ -268,7 +394,7 @@ def create_slice(ctx, slice_id, device_group, service_differentiator, slice_serv
             "downlink": mbr_dl,
             "downlink-burst-size": mbr_dl_bs,
             "uplink": mbr_ul,
-            "uplink-burst-size": mbr_ul_bs
+            "uplink-burst-size": mbr_ul_bs,
         },
         "sd": service_differentiator,
         "slice-id": slice_id,
@@ -284,20 +410,46 @@ def create_slice(ctx, slice_id, device_group, service_differentiator, slice_serv
 
 @aether_cli.command()
 @click.pass_context
-@click.argument('device_group_id', nargs=1, type=click.STRING)
-@click.argument('traffic_class', nargs=1, type=click.STRING)
-@click.argument('ip_domain', nargs=1, type=click.STRING)
-@click.argument('device-id', nargs=1, type=click.STRING)
-@click.option('--dgn', default="Device Group", type=click.STRING, help='Device Group Name', show_default=True)
-@click.option('--dgd', default="Device Group for UE's", type=click.STRING, help='Device Group Description', show_default=True)
-@click.option('--mbr_dl', default=20000000, type=click.INT, help='Device Group MBR Dowlink', show_default=True)
-@click.option('--mbr_ul', default=20000000, type=click.INT, help='Device Group MBR Uplink', show_default=True)
+@click.argument("device_group_id", nargs=1, type=click.STRING)
+@click.argument("traffic_class", nargs=1, type=click.STRING)
+@click.argument("ip_domain", nargs=1, type=click.STRING)
+@click.argument("device-id", nargs=1, type=click.STRING)
+@click.option(
+    "--dgn",
+    default="Device Group",
+    type=click.STRING,
+    help="Device Group Name",
+    show_default=True,
+)
+@click.option(
+    "--dgd",
+    default="Device Group for UE's",
+    type=click.STRING,
+    help="Device Group Description",
+    show_default=True,
+)
+@click.option(
+    "--mbr_dl",
+    default=20000000,
+    type=click.INT,
+    help="Device Group MBR Dowlink",
+    show_default=True,
+)
+@click.option(
+    "--mbr_ul",
+    default=20000000,
+    type=click.INT,
+    help="Device Group MBR Uplink",
+    show_default=True,
+)
 # TODO: Allow passing multiple device id's
-def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_id, dgn, dgd, mbr_dl, mbr_ul):
+def create_device_group(
+    ctx, device_group_id, traffic_class, ip_domain, device_id, dgn, dgd, mbr_dl, mbr_ul
+):
     """
     Create a new device group.
 
-    DEVICE_GROUP_ID must be an unique idenfitifer. ex: "devgroup1" 
+    DEVICE_GROUP_ID must be an unique idenfitifer. ex: "devgroup1"
 
     TRAFFIC_CLASS is the ID of the traffic class this group belongs to. ex: "class-1"
 
@@ -307,20 +459,17 @@ def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_i
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
-    site = ctx.obj['SITE']
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
 
-    url = roc_api_url + \
-        "{e}/site/{s}/device-group/{dg}".format(
-            e=enterprise, s=site, dg=device_group_id)
+    url = roc_api_url + "{e}/site/{s}/device-group/{dg}".format(
+        e=enterprise, s=site, dg=device_group_id
+    )
 
     req_body = {
         "description": dgd,
         "device": [
-            {
-                "device-id": device_id,
-                "enable": True
-            }
+            {"device-id": device_id, "enable": True}
             # TODO: Multiple device id's go here
         ],
         "device-group-id": device_group_id,
@@ -341,14 +490,38 @@ def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_i
 
 @aether_cli.command()
 @click.pass_context
-@click.argument('ip-pool-id', nargs=1, type=click.STRING)
-@click.argument('dnn', nargs=1, type=click.STRING)
-@click.argument('subnet', nargs=1, type=click.STRING)
-@click.argument('mtu', nargs=1, type=click.INT)
-@click.option('--ipn', default="IP pool", type=click.STRING, help='IP pool name', show_default=True)
-@click.option('--ipd', default="IP addresses for UE's", type=click.STRING, help='IP pool description', show_default=True)
-@click.option('--dnsp', default="1.1.1.1", type=click.STRING, help='Primary DNS server', show_default=True)
-@click.option('--dnss', default="1.0.0.1", type=click.STRING, help='Secondary DNS server', show_default=True)
+@click.argument("ip-pool-id", nargs=1, type=click.STRING)
+@click.argument("dnn", nargs=1, type=click.STRING)
+@click.argument("subnet", nargs=1, type=click.STRING)
+@click.argument("mtu", nargs=1, type=click.INT)
+@click.option(
+    "--ipn",
+    default="IP pool",
+    type=click.STRING,
+    help="IP pool name",
+    show_default=True,
+)
+@click.option(
+    "--ipd",
+    default="IP addresses for UE's",
+    type=click.STRING,
+    help="IP pool description",
+    show_default=True,
+)
+@click.option(
+    "--dnsp",
+    default="1.1.1.1",
+    type=click.STRING,
+    help="Primary DNS server",
+    show_default=True,
+)
+@click.option(
+    "--dnss",
+    default="1.0.0.1",
+    type=click.STRING,
+    help="Secondary DNS server",
+    show_default=True,
+)
 def create_ip_pool(ctx, ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
     """
     Create a new IP pool of addresses for UE's.
@@ -362,12 +535,12 @@ def create_ip_pool(ctx, ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
     MTU is the maximum transmission unit value. ex: 1450
     """
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
-    site = ctx.obj['SITE']
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
 
-    url = roc_api_url + \
-        "{e}/site/{s}/ip-domain/{id}".format(
-            e=enterprise, s=site, id=ip_pool_id)
+    url = roc_api_url + "{e}/site/{s}/ip-domain/{id}".format(
+        e=enterprise, s=site, id=ip_pool_id
+    )
 
     req_body = {
         "admin-status": "ENABLE",
@@ -395,7 +568,7 @@ def get_site(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
     url = roc_api_url + "{e}/site".format(e=enterprise)
     response = requests.get(url)
@@ -411,7 +584,7 @@ def list_devices(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
 
 @aether_cli.command()
@@ -422,7 +595,7 @@ def list_device_groups(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
 
 @aether_cli.command()
@@ -433,7 +606,7 @@ def list_sim_cards(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
 
 @aether_cli.command()
@@ -444,7 +617,7 @@ def list_slices(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
 
 @aether_cli.command()
@@ -455,7 +628,7 @@ def list_upfs(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
 
 @aether_cli.command()
@@ -466,14 +639,70 @@ def list_ip_pools(ctx):
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
-    enterprise = ctx.obj['ENTERPRISE']
+    enterprise = ctx.obj["ENTERPRISE"]
 
 
 @aether_cli.command()
 @click.pass_context
 def get_apps(ctx):
-    os.system('argocd app list')
+    """
+    List all the deployed apps on all clusters
+    """
+    os.system("argocd app list")
 
 
-if __name__ == '__main__':
+@aether_cli.command()
+@click.pass_context
+@click.argument("repo", nargs=1, type=click.STRING)
+@click.argument("path", nargs=1, type=click.STRING)
+@click.argument("cluster", nargs=1, type=click.STRING)
+@click.option(
+    "--an",
+    default="site-router",
+    type=click.STRING,
+    help="Application deployment name",
+    show_default=True,
+)
+@click.option(
+    "--ap",
+    default="default",
+    type=click.STRING,
+    help="Application deployment project",
+    show_default=True,
+)
+@click.option(
+    "--dns",
+    default="default",
+    type=click.STRING,
+    help="Application deployment namespace",
+    show_default=True,
+)
+def deploy_app(ctx, repo, path, cluster, an, ap, dns):
+    """
+    Create a new ArgoCD application deployemnt. This command can be used to deploy the router needed for the k8s cluster,
+    as well as deployment the edge services on any remote cluster
+
+    REPO is the address of the github repo that manages this deployment. ex: "https://github.com/dot-1q/5g_connected_edge.git"
+
+    PATH is the path of the folder where the k8s deployment file is. ex: "site3/router"
+
+    CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
+    """
+    # Use the Argocd CLI to create the Router app deployment
+    os.system(
+        "argocd app create {appname} \
+              --repo {r} \
+              --project {ap} \
+              --path {p} \
+              --dest-namespace {dns} \
+              --dest-server {ds} \
+              --self-heal \
+              --sync-policy auto \
+              --sync-option CreateNamespace=true".format(
+            appname=an, r=repo, ap=ap, p=path, dns=dns, ds=cluster
+        )
+    )
+
+
+if __name__ == "__main__":
     aether_cli()
