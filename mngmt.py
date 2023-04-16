@@ -30,34 +30,10 @@ def aether_cli(ctx, enterprise, site):
 @click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("plmn", nargs=1, type=click.STRING)
 @click.argument("address", nargs=1, type=click.STRING)
-@click.option(
-    "--port",
-    default=5000,
-    type=click.INT,
-    help="Subscriber config service Port",
-    show_default=True,
-)
-@click.option(
-    "--opc",
-    default="981d464c7c52eb6e5036234984ad0bcf",
-    type=click.STRING,
-    help="OPC code",
-    show_default=True,
-)
-@click.option(
-    "--key",
-    default="5122250214c33e723a5dd523fc145fc0",
-    type=click.STRING,
-    help="Key code",
-    show_default=True,
-)
-@click.option(
-    "--sqn",
-    default="16f3b3f70fc2",
-    type=click.STRING,
-    help="Sequence number",
-    show_default=True,
-)
+@click.option("--port", default=5000, type=click.INT, help="Subscriber config service Port", show_default=True)
+@click.option("--opc", default="981d464c7c52eb6e5036234984ad0bcf", type=click.STRING, help="OPC code", show_default=True)
+@click.option("--key", default="5122250214c33e723a5dd523fc145fc0", type=click.STRING, help="Key code", show_default=True)
+@click.option("--sqn", default="16f3b3f70fc2", type=click.STRING, help="Sequence number", show_default=True)
 def add_sim(imsi, plmn, address, port, opc, key, sqn):
     """
     Add a subscriber to Aether's core. An imsi sim card number should be provided.
@@ -72,7 +48,8 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
     ADDRESS is the address of the subscriber config server.
     """
     # SD-Core subscriber's provisioning api endpoint.
-    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(a=address, p=port, i=imsi)
+    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(
+        a=address, p=port, i=imsi)
 
     req_body = {
         "UeId": imsi,
@@ -94,34 +71,10 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
 @click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("device-id", nargs=1, type=click.STRING)
 @click.argument("device-group", nargs=1, type=click.STRING)
-@click.option(
-    "--sd",
-    default="New Sim Card",
-    type=click.STRING,
-    help="Sim card description",
-    show_default=True,
-)
-@click.option(
-    "--sn",
-    default="New UE Sim",
-    type=click.STRING,
-    help="Sim card name",
-    show_default=True,
-)
-@click.option(
-    "--dn",
-    default="New Device",
-    type=click.STRING,
-    help="Device name",
-    show_default=True,
-)
-@click.option(
-    "--dd",
-    default="UE Device",
-    type=click.STRING,
-    help="Device description",
-    show_default=True,
-)
+@click.option("--sd", default="New Sim Card", type=click.STRING, help="Sim card description", show_default=True)
+@click.option("--sn", default="New UE Sim", type=click.STRING, help="Sim card name", show_default=True)
+@click.option("--dn", default="New Device", type=click.STRING, help="Device name", show_default=True)
+@click.option("--dd", default="UE Device", type=click.STRING, help="Device description", show_default=True)
 def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     """
     Add a new sim card, device and assign it to device group.
@@ -203,39 +156,11 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 @click.argument("cluster", nargs=1, type=click.STRING)
 @click.argument("values", nargs=1, type=click.STRING)
 @click.argument("app_name", nargs=1, type=click.STRING)
-@click.option(
-    "--un", default="UPF", type=click.STRING, help="UPF Name", show_default=True
-)
-@click.option(
-    "--ud",
-    default="User Plane Function",
-    type=click.STRING,
-    help="UPF Description",
-    show_default=True,
-)
+@click.option("--un", default="UPF", type=click.STRING, help="UPF Name", show_default=True)
+@click.option("--ud", default="User Plane Function", type=click.STRING, help="UPF Description", show_default=True)
 @click.option("--up", default=8805, type=click.INT, help="UPF Port", show_default=True)
-@click.option(
-    "--ap",
-    default="default",
-    type=click.STRING,
-    help="App deployment project",
-    show_default=True,
-)
-def create_upf(
-    ctx,
-    upf_id,
-    address,
-    config_endpoint,
-    repo,
-    path,
-    cluster,
-    values,
-    app_name,
-    un,
-    ud,
-    up,
-    ap,
-):
+@click.option("--ap", default="default", type=click.STRING, help="App deployment project", show_default=True)
+def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, values, app_name, un, ud, up, ap):
     """
     Create a new UPF. Each UPF can only be associated with a single site and slice.
 
@@ -260,7 +185,8 @@ def create_upf(
     enterprise = ctx.obj["ENTERPRISE"]
     site = ctx.obj["SITE"]
 
-    url = roc_api_url + "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
+    url = roc_api_url + \
+        "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
     url_argocd = "https://localhost:30001/api/v1/applications"
 
     req_body = {
@@ -279,12 +205,12 @@ def create_upf(
     # Use the Argocd API to create the upf app deployment
     token = get_argocd_token()
     headers = {
-        'Authorization': 'Bearer '+ token,
+        'Authorization': 'Bearer ' + token,
     }
 
     req_body = {
-        "metadata":{
-                "name": app_name,
+        "metadata": {
+            "name": app_name,
         },
         "spec": {
             "destination": {
@@ -307,7 +233,8 @@ def create_upf(
     }
 
     # Send POST
-    response = requests.post(url_argocd, json=req_body, headers=headers, verify=False)
+    response = requests.post(url_argocd, json=req_body,
+                             headers=headers, verify=False)
     print(response)
     print("Created UPF deployment")
 
@@ -319,59 +246,14 @@ def create_upf(
 @click.argument("service-differentiator", nargs=1, type=click.STRING)
 @click.argument("slice-service-type", nargs=1, type=click.STRING)
 @click.argument("upf_id", nargs=1, type=click.STRING)
-@click.option(
-    "--sn", default="Slice", type=click.STRING, help="Slice Name", show_default=True
-)
-@click.option(
-    "--sd",
-    default="Network Slice",
-    type=click.STRING,
-    help="Slice Description",
-    show_default=True,
-)
-@click.option(
-    "--mbr_dl",
-    default=100000000,
-    type=click.INT,
-    help="Slice Maximum Bit Rate Downlink",
-    show_default=True,
-)
-@click.option(
-    "--mbr_dl_bs",
-    default=625000,
-    type=click.INT,
-    help="Slice MBR Downlink Burst Size",
-    show_default=True,
-)
-@click.option(
-    "--mbr_ul",
-    default=100000000,
-    type=click.INT,
-    help="Slice Maximum Bit Rate Uplink",
-    show_default=True,
-)
-@click.option(
-    "--mbr_ul_bs",
-    default=625000,
-    type=click.INT,
-    help="Slice MBR Uplink Burst Size",
-    show_default=True,
-)
+@click.option("--sn", default="Slice", type=click.STRING, help="Slice Name", show_default=True)
+@click.option("--sd", default="Network Slice", type=click.STRING, help="Slice Description", show_default=True)
+@click.option("--mbr_dl", default=100000000, type=click.INT, help="Slice Maximum Bit Rate Downlink", show_default=True)
+@click.option("--mbr_dl_bs", default=625000, type=click.INT, help="Slice MBR Downlink Burst Size", show_default=True)
+@click.option("--mbr_ul", default=100000000, type=click.INT, help="Slice Maximum Bit Rate Uplink", show_default=True)
+@click.option("--mbr_ul_bs", default=625000, type=click.INT, help="Slice MBR Uplink Burst Size", show_default=True)
 # TODO: Add multiple device groups to a slice
-def create_slice(
-    ctx,
-    slice_id,
-    device_group,
-    service_differentiator,
-    slice_service_type,
-    upf_id,
-    sn,
-    sd,
-    mbr_dl,
-    mbr_dl_bs,
-    mbr_ul,
-    mbr_ul_bs,
-):
+def create_slice(ctx, slice_id, device_group, service_differentiator, slice_service_type, upf_id, sn, sd, mbr_dl, mbr_dl_bs, mbr_ul, mbr_ul_bs):
     """
     Create a new Slice. Each Slice must be in only one site and must only have one UPF. Multiple device groups
     may be added to the slice, but this version does not yet support this.
@@ -428,38 +310,12 @@ def create_slice(
 @click.argument("traffic_class", nargs=1, type=click.STRING)
 @click.argument("ip_domain", nargs=1, type=click.STRING)
 @click.argument("device-id", nargs=1, type=click.STRING)
-@click.option(
-    "--dgn",
-    default="Device Group",
-    type=click.STRING,
-    help="Device Group Name",
-    show_default=True,
-)
-@click.option(
-    "--dgd",
-    default="Device Group for UE's",
-    type=click.STRING,
-    help="Device Group Description",
-    show_default=True,
-)
-@click.option(
-    "--mbr_dl",
-    default=20000000,
-    type=click.INT,
-    help="Device Group MBR Dowlink",
-    show_default=True,
-)
-@click.option(
-    "--mbr_ul",
-    default=20000000,
-    type=click.INT,
-    help="Device Group MBR Uplink",
-    show_default=True,
-)
+@click.option("--dgn", default="Device Group", type=click.STRING, help="Device Group Name", show_default=True)
+@click.option("--dgd", default="Device Group for UE's", type=click.STRING, help="Device Group Description", show_default=True)
+@click.option("--mbr_dl", default=20000000, type=click.INT, help="Device Group MBR Dowlink", show_default=True)
+@click.option("--mbr_ul", default=20000000, type=click.INT, help="Device Group MBR Uplink", show_default=True)
 # TODO: Allow passing multiple device id's
-def create_device_group(
-    ctx, device_group_id, traffic_class, ip_domain, device_id, dgn, dgd, mbr_dl, mbr_ul
-):
+def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_id, dgn, dgd, mbr_dl, mbr_ul):
     """
     Create a new device group.
 
@@ -508,34 +364,10 @@ def create_device_group(
 @click.argument("dnn", nargs=1, type=click.STRING)
 @click.argument("subnet", nargs=1, type=click.STRING)
 @click.argument("mtu", nargs=1, type=click.INT)
-@click.option(
-    "--ipn",
-    default="IP pool",
-    type=click.STRING,
-    help="IP pool name",
-    show_default=True,
-)
-@click.option(
-    "--ipd",
-    default="IP addresses for UE's",
-    type=click.STRING,
-    help="IP pool description",
-    show_default=True,
-)
-@click.option(
-    "--dnsp",
-    default="1.1.1.1",
-    type=click.STRING,
-    help="Primary DNS server",
-    show_default=True,
-)
-@click.option(
-    "--dnss",
-    default="1.0.0.1",
-    type=click.STRING,
-    help="Secondary DNS server",
-    show_default=True,
-)
+@click.option("--ipn", default="IP pool", type=click.STRING, help="IP pool name", show_default=True)
+@click.option("--ipd", default="IP addresses for UE's", type=click.STRING, help="IP pool description", show_default=True)
+@click.option("--dnsp", default="1.1.1.1", type=click.STRING, help="Primary DNS server", show_default=True)
+@click.option("--dnss", default="1.0.0.1", type=click.STRING, help="Secondary DNS server", show_default=True)
 def create_ip_pool(ctx, ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
     """
     Create a new IP pool of addresses for UE's.
@@ -671,20 +503,8 @@ def get_apps(ctx):
 @click.argument("repo", nargs=1, type=click.STRING)
 @click.argument("path", nargs=1, type=click.STRING)
 @click.argument("cluster", nargs=1, type=click.STRING)
-@click.option(
-    "--ap",
-    default="default",
-    type=click.STRING,
-    help="Application deployment project",
-    show_default=True,
-)
-@click.option(
-    "--dns",
-    default="default",
-    type=click.STRING,
-    help="Application deployment namespace",
-    show_default=True,
-)
+@click.option("--ap", default="default", type=click.STRING, help="Application deployment project", show_default=True)
+@click.option("--dns", default="default", type=click.STRING, help="Application deployment namespace", show_default=True)
 def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     """
     Create a new ArgoCD application deployemnt. This command can be used to deploy the router needed for the k8s cluster,
@@ -702,12 +522,12 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     url = "https://localhost:30001/api/v1/applications"
     token = get_argocd_token()
     headers = {
-        'Authorization': 'Bearer '+ token,
+        'Authorization': 'Bearer ' + token,
     }
 
     req_body = {
-        "metadata":{
-                "name": name
+        "metadata": {
+            "name": name
         },
         "spec": {
             "destination": {
@@ -729,7 +549,7 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     # Send POST
     response = requests.post(url, json=req_body, headers=headers, verify=False)
     print(response)
-    
+
 
 def get_argocd_token():
     """
@@ -739,7 +559,7 @@ def get_argocd_token():
     url = "https://localhost:30001/api/v1/session"
 
     # This loads the file that contains the ArgoCD secrets
-    # You should create a file with the same name that has your 
+    # You should create a file with the same name that has your
     # Username and password
     import argocd_secrets
     req_body = {
@@ -747,7 +567,7 @@ def get_argocd_token():
         "password": argocd_secrets.password
     }
 
-    response = requests.post(url,json=req_body,verify=False)
+    response = requests.post(url, json=req_body, verify=False)
 
     # Return the token value
     return json.loads(response.text)['token']
