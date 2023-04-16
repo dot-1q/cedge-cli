@@ -1,6 +1,7 @@
 import requests
 import click
 import os
+import json
 
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
@@ -201,6 +202,7 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 @click.argument("path", nargs=1, type=click.STRING)
 @click.argument("cluster", nargs=1, type=click.STRING)
 @click.argument("values", nargs=1, type=click.STRING)
+@click.argument("app_name", nargs=1, type=click.STRING)
 @click.option(
     "--un", default="UPF", type=click.STRING, help="UPF Name", show_default=True
 )
@@ -212,13 +214,6 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     show_default=True,
 )
 @click.option("--up", default=8805, type=click.INT, help="UPF Port", show_default=True)
-@click.option(
-    "--an",
-    default="site-upf",
-    type=click.STRING,
-    help="App deployment name",
-    show_default=True,
-)
 @click.option(
     "--ap",
     default="default",
@@ -235,10 +230,10 @@ def create_upf(
     path,
     cluster,
     values,
+    app_name,
     un,
     ud,
     up,
-    an,
     ap,
 ):
     """
@@ -257,6 +252,8 @@ def create_upf(
     CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
 
     VALUES is the name of the override helm chart values file. ex: "values_upf4.yaml"
+
+    APP_NAME is the name of the deployment name for ArgoCD. ex: "site3-upf4"
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -264,6 +261,7 @@ def create_upf(
     site = ctx.obj["SITE"]
 
     url = roc_api_url + "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
+    url_argocd = "https://localhost:30001/api/v1/applications"
 
     req_body = {
         "address": address,
@@ -277,24 +275,40 @@ def create_upf(
     # Send POST
     response = requests.post(url, json=req_body)
     print(response)
-    print(response.content)
 
-    # Use the Argocd CLI to create the upf app deployment
-    os.system(
-        "argocd app create {appname} \
-              --repo {r} \
-              --project {ap} \
-              --path {p} \
-              --dest-namespace {dns} \
-              --dest-server {ds} \
-              --values {v} \
-              --self-heal \
-              --sync-policy auto \
-              --sync-option CreateNamespace=true".format(
-            appname=an, r=repo, ap=ap, p=path, dns=upf_id, ds=cluster, v=values
-        )
-    )
+    # Use the Argocd API to create the upf app deployment
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer '+ token,
+    }
 
+    req_body = {
+        "metadata":{
+                "name": app_name,
+        },
+        "spec": {
+            "destination": {
+                "namespace": upf_id,
+                "server": cluster
+            },
+            "project": ap,
+            "source": {
+                "repoURL": repo,
+                "path": path,
+                "helm": {
+                    "valueFiles": [values]
+                }
+            },
+            "syncPolicy": {
+                "automated": {"selfHeal": True},
+                "syncOptions": ["CreateNamespace=true"]
+            },
+        }
+    }
+
+    # Send POST
+    response = requests.post(url_argocd, json=req_body, headers=headers, verify=False)
+    print(response)
     print("Created UPF deployment")
 
 
@@ -653,16 +667,10 @@ def get_apps(ctx):
 
 @aether_cli.command()
 @click.pass_context
+@click.argument("name", nargs=1, type=click.STRING)
 @click.argument("repo", nargs=1, type=click.STRING)
 @click.argument("path", nargs=1, type=click.STRING)
 @click.argument("cluster", nargs=1, type=click.STRING)
-@click.option(
-    "--an",
-    default="site-router",
-    type=click.STRING,
-    help="Application deployment name",
-    show_default=True,
-)
 @click.option(
     "--ap",
     default="default",
@@ -677,10 +685,12 @@ def get_apps(ctx):
     help="Application deployment namespace",
     show_default=True,
 )
-def deploy_app(ctx, repo, path, cluster, an, ap, dns):
+def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     """
     Create a new ArgoCD application deployemnt. This command can be used to deploy the router needed for the k8s cluster,
     as well as deployment the edge services on any remote cluster
+
+    NAME is the name of the deployment. ex: "site3-router"
 
     REPO is the address of the github repo that manages this deployment. ex: "https://github.com/dot-1q/5g_connected_edge.git"
 
@@ -688,20 +698,59 @@ def deploy_app(ctx, repo, path, cluster, an, ap, dns):
 
     CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
     """
-    # Use the Argocd CLI to create the Router app deployment
-    os.system(
-        "argocd app create {appname} \
-              --repo {r} \
-              --project {ap} \
-              --path {p} \
-              --dest-namespace {dns} \
-              --dest-server {ds} \
-              --self-heal \
-              --sync-policy auto \
-              --sync-option CreateNamespace=true".format(
-            appname=an, r=repo, ap=ap, p=path, dns=dns, ds=cluster
-        )
-    )
+
+    url = "https://localhost:30001/api/v1/applications"
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer '+ token,
+    }
+
+    req_body = {
+        "metadata":{
+                "name": name
+        },
+        "spec": {
+            "destination": {
+                "namespace": dns,
+                "server": cluster,
+            },
+            "project": ap,
+            "source": {
+                "repoURL": repo,
+                "path": path,
+            },
+            "syncPolicy": {
+                "automated": {"selfHeal": True},
+                "syncOptions": ["CreateNamespace=true"]
+            },
+        }
+    }
+
+    # Send POST
+    response = requests.post(url, json=req_body, headers=headers, verify=False)
+    print(response)
+    
+
+def get_argocd_token():
+    """
+    Get Bearer ArgoCD API token
+    """
+
+    url = "https://localhost:30001/api/v1/session"
+
+    # This loads the file that contains the ArgoCD secrets
+    # You should create a file with the same name that has your 
+    # Username and password
+    import argocd_secrets
+    req_body = {
+        "username": argocd_secrets.username,
+        "password": argocd_secrets.password
+    }
+
+    response = requests.post(url,json=req_body,verify=False)
+
+    # Return the token value
+    return json.loads(response.text)['token']
 
 
 if __name__ == "__main__":
