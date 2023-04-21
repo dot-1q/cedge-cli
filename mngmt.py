@@ -162,7 +162,7 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 @click.option("--ap", default="default", type=click.STRING, help="App deployment project", show_default=True)
 def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, values, app_name, un, ud, up, ap):
     """
-    Create a new UPF. Each UPF can only be associated with a single site and slice.
+    Create a new UPF and deploy it. Each UPF can only be associated with a single site and slice.
 
     UPF_ID is a unique identifies for the new UPF. ex: "upf4"
 
@@ -426,7 +426,7 @@ def get_site(ctx):
 @click.pass_context
 def list_devices(ctx):
     """
-    List all devices of a given device group.
+    List all devices of a device group [NOT YET IMPLEMENTED] 
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -437,7 +437,7 @@ def list_devices(ctx):
 @click.pass_context
 def list_device_groups(ctx):
     """
-    List all device groups
+    List all device groups [NOT YET IMPLEMENTED]
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -448,7 +448,7 @@ def list_device_groups(ctx):
 @click.pass_context
 def list_sim_cards(ctx):
     """
-    List all sim cards of a given Enterprise and site.
+    List all sim cards of a given Enterprise and site [NOT YET IMPLEMENTED]
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -459,7 +459,7 @@ def list_sim_cards(ctx):
 @click.pass_context
 def list_slices(ctx):
     """
-    List all slices.
+    List all slices [NOT YET IMPLEMENTED]
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -470,7 +470,7 @@ def list_slices(ctx):
 @click.pass_context
 def list_upfs(ctx):
     """
-    List all upfs.
+    List all upfs [NOT YET IMPLEMENTED]
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -481,7 +481,7 @@ def list_upfs(ctx):
 @click.pass_context
 def list_ip_pools(ctx):
     """
-    List all IP pools.
+    List all IP pools [NOT YET IMPLEMENTED]
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
@@ -492,7 +492,7 @@ def list_ip_pools(ctx):
 @click.pass_context
 def get_apps(ctx):
     """
-    List all the deployed apps on all clusters
+    List all the deployed apps on all clusters [NOT YET IMPLEMENTED]
     """
     os.system("argocd app list")
 
@@ -519,7 +519,7 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
     """
 
-    url = "https://localhost:30001/api/v1/applications"
+    url_argocd = "https://localhost:30001/api/v1/applications"
     token = get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,
@@ -547,7 +547,7 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     }
 
     # Send POST
-    response = requests.post(url, json=req_body, headers=headers, verify=False)
+    response = requests.post(url_argocd, json=req_body, headers=headers, verify=False)
     print(response)
 
 
@@ -556,7 +556,7 @@ def get_argocd_token():
     Get Bearer ArgoCD API token
     """
 
-    url = "https://localhost:30001/api/v1/session"
+    url_argocd = "https://localhost:30001/api/v1/session"
 
     # This loads the file that contains the ArgoCD secrets
     # You should create a file with the same name that has your
@@ -567,7 +567,7 @@ def get_argocd_token():
         "password": argocd_secrets.password
     }
 
-    response = requests.post(url, json=req_body, verify=False)
+    response = requests.post(url_argocd, json=req_body, verify=False)
 
     # Return the token value
     return json.loads(response.text)['token']
