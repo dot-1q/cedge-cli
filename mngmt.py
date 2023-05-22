@@ -2,11 +2,16 @@ import requests
 import click
 import os
 import json
+from urllib3.exceptions import InsecureRequestWarning
+
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
 # that on an Aether Standalone deployment the API port will be different.
 roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
+url_argocd = "https://localhost:30001/api/v1/applications"
 
 
 @click.group()
@@ -187,7 +192,6 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
 
     url = roc_api_url + \
         "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
-    url_argocd = "https://localhost:30001/api/v1/applications"
 
     req_body = {
         "address": address,
@@ -490,11 +494,26 @@ def list_ip_pools(ctx):
 
 @aether_cli.command()
 @click.pass_context
-def get_apps(ctx):
+@click.argument("app_name", nargs=1, type=click.STRING)
+def get_app_status(ctx, app_name):
     """
-    List all the deployed apps on all clusters [NOT YET IMPLEMENTED]
+    Get health status of an app.
+
+    APP_NAME is a unique identifier for the deployment of an application.
     """
-    os.system("argocd app list")
+
+    # Use the Argocd API to create the upf app deployment
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer ' + token,
+    }
+
+    # Send POST
+    response = requests.get(url_argocd + '/' + app_name, 
+                             headers=headers, verify=False)
+    data = response.json()
+    print(data['status']['health']['status'])
+    print("Response")
 
 
 @aether_cli.command()
@@ -519,7 +538,6 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
     """
 
-    url_argocd = "https://localhost:30001/api/v1/applications"
     token = get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,

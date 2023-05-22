@@ -51,7 +51,7 @@ Commands:
   create-slice         Create a new Slice.
   create-upf           Create a new UPF and deploy it.
   deploy-app           Create a new ArgoCD application deployemnt.
-  get-apps             List all the deployed apps on all clusters [NOT...
+  get-app-status       Get health status of an app.
   get-site             Get a description of all the sites of an enterprise.
   list-device-groups   List all device groups [NOT YET IMPLEMENTED]
   list-devices         List all devices of a device group [NOT YET...
