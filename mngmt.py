@@ -513,7 +513,6 @@ def get_app_status(ctx, app_name):
                              headers=headers, verify=False)
     data = response.json()
     print(data['status']['health']['status'])
-    print("Response")
 
 
 @aether_cli.command()
