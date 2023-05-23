@@ -2,11 +2,18 @@ import requests
 import click
 import os
 import json
+from urllib3.exceptions import InsecureRequestWarning
+
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
 # that on an Aether Standalone deployment the API port will be different.
+
 roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
+webui_url = "http://localhost:30002/api/subscriber/"
+url_argocd = "https://localhost:30001/api/v1/"
 
 
 @click.group()
@@ -29,12 +36,10 @@ def aether_cli(ctx, enterprise, site):
 @aether_cli.command()
 @click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("plmn", nargs=1, type=click.STRING)
-@click.argument("address", nargs=1, type=click.STRING)
-@click.option("--port", default=5000, type=click.INT, help="Subscriber config service Port", show_default=True)
 @click.option("--opc", default="981d464c7c52eb6e5036234984ad0bcf", type=click.STRING, help="OPC code", show_default=True)
 @click.option("--key", default="5122250214c33e723a5dd523fc145fc0", type=click.STRING, help="Key code", show_default=True)
 @click.option("--sqn", default="16f3b3f70fc2", type=click.STRING, help="Sequence number", show_default=True)
-def add_sim(imsi, plmn, address, port, opc, key, sqn):
+def add_sim(imsi, plmn, opc, key, sqn):
     """
     Add a subscriber to Aether's core. An imsi sim card number should be provided.
 
@@ -45,11 +50,9 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
 
     PLMN is the PLMN code. ex: '20893'
 
-    ADDRESS is the address of the subscriber config server.
     """
     # SD-Core subscriber's provisioning api endpoint.
-    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(
-        a=address, p=port, i=imsi)
+    url = webui_url + "imsi-{i}".format(i=imsi)
 
     req_body = {
         "UeId": imsi,
@@ -187,7 +190,6 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
 
     url = roc_api_url + \
         "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
-    url_argocd = "https://localhost:30001/api/v1/applications"
 
     req_body = {
         "address": address,
@@ -233,7 +235,7 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
     }
 
     # Send POST
-    response = requests.post(url_argocd, json=req_body,
+    response = requests.post(url_argocd+"applications", json=req_body,
                              headers=headers, verify=False)
     print(response)
     print("Created UPF deployment")
@@ -490,11 +492,25 @@ def list_ip_pools(ctx):
 
 @aether_cli.command()
 @click.pass_context
-def get_apps(ctx):
+@click.argument("app_name", nargs=1, type=click.STRING)
+def get_app_status(ctx, app_name):
     """
-    List all the deployed apps on all clusters [NOT YET IMPLEMENTED]
+    Get health status of an app.
+
+    APP_NAME is a unique identifier for the deployment of an application.
     """
-    os.system("argocd app list")
+
+    # Use the Argocd API to create the upf app deployment
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer ' + token,
+    }
+
+    # Send POST
+    response = requests.get(url_argocd + 'applications/' + app_name, 
+                             headers=headers, verify=False)
+    data = response.json()
+    print(data['status']['health']['status'])
 
 
 @aether_cli.command()
@@ -521,7 +537,6 @@ def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
     CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
     """
 
-    url_argocd = "https://localhost:30001/api/v1/applications"
     token = get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,
@@ -550,16 +565,36 @@ def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
     }
 
     # Send POST
-    response = requests.post(url_argocd, json=req_body, headers=headers, verify=False)
+    response = requests.post(url_argocd+"applications", json=req_body, headers=headers, verify=False)
     print(response)
 
+
+@aether_cli.command()
+@click.pass_context
+@click.argument("app_name", nargs=1, type=click.STRING)
+def delete_app(ctx, app_name):
+    """
+    Delete app deployment
+
+    APP_NAME is a unique identifier for the deployment of an application.
+    """
+
+    # Use the Argocd API to create the upf app deployment
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer ' + token,
+    }
+
+    # Send POST
+    response = requests.delete(url_argocd + 'applications/' + app_name, 
+                             headers=headers, verify=False)
+
+    print(response)
 
 def get_argocd_token():
     """
     Get Bearer ArgoCD API token
     """
-
-    url_argocd = "https://localhost:30001/api/v1/session"
 
     # This loads the file that contains the ArgoCD secrets
     # You should create a file with the same name that has your
@@ -570,7 +605,7 @@ def get_argocd_token():
         "password": argocd_secrets.password
     }
 
-    response = requests.post(url_argocd, json=req_body, verify=False)
+    response = requests.post(url_argocd + "session", json=req_body, verify=False)
 
     # Return the token value
     return json.loads(response.text)['token']
