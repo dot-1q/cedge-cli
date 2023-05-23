@@ -555,7 +555,7 @@ def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
             "source": {
                 "repoURL": repo,
                 "path": path,
-                "helm": {"valueFiles": [values] } if helm is True else None
+                "helm" if helm is True else "" : ({"valueFiles": [values] }) if helm is True else ""
             },
             "syncPolicy": {
                 "automated": {"selfHeal": True},
@@ -563,6 +563,8 @@ def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
             },
         }
     }
+
+    print(req_body)
 
     # Send POST
     response = requests.post(url_argocd+"applications", json=req_body, headers=headers, verify=False)
