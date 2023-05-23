@@ -10,8 +10,9 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
 # that on an Aether Standalone deployment the API port will be different.
+
 roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
-url_argocd = "https://localhost:30001/api/v1/applications"
+url_argocd = "https://localhost:30001/api/v1/"
 
 
 @click.group()
@@ -237,7 +238,7 @@ def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, value
     }
 
     # Send POST
-    response = requests.post(url_argocd, json=req_body,
+    response = requests.post(url_argocd+"applications", json=req_body,
                              headers=headers, verify=False)
     print(response)
     print("Created UPF deployment")
@@ -509,7 +510,7 @@ def get_app_status(ctx, app_name):
     }
 
     # Send POST
-    response = requests.get(url_argocd + '/' + app_name, 
+    response = requests.get(url_argocd + 'applications/' + app_name, 
                              headers=headers, verify=False)
     data = response.json()
     print(data['status']['health']['status'])
@@ -564,16 +565,36 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
     }
 
     # Send POST
-    response = requests.post(url_argocd, json=req_body, headers=headers, verify=False)
+    response = requests.post(url_argocd+"applications", json=req_body, headers=headers, verify=False)
     print(response)
 
+
+@aether_cli.command()
+@click.pass_context
+@click.argument("app_name", nargs=1, type=click.STRING)
+def delete_app(ctx, app_name):
+    """
+    Delete app deployment
+
+    APP_NAME is a unique identifier for the deployment of an application.
+    """
+
+    # Use the Argocd API to create the upf app deployment
+    token = get_argocd_token()
+    headers = {
+        'Authorization': 'Bearer ' + token,
+    }
+
+    # Send POST
+    response = requests.delete(url_argocd + 'applications/' + app_name, 
+                             headers=headers, verify=False)
+
+    print(response)
 
 def get_argocd_token():
     """
     Get Bearer ArgoCD API token
     """
-
-    url_argocd = "https://localhost:30001/api/v1/session"
 
     # This loads the file that contains the ArgoCD secrets
     # You should create a file with the same name that has your
@@ -584,7 +605,7 @@ def get_argocd_token():
         "password": argocd_secrets.password
     }
 
-    response = requests.post(url_argocd, json=req_body, verify=False)
+    response = requests.post(url_argocd + "session", json=req_body, verify=False)
 
     # Return the token value
     return json.loads(response.text)['token']
