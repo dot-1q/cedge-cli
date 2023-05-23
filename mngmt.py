@@ -12,6 +12,7 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 # that on an Aether Standalone deployment the API port will be different.
 
 roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
+webui_url = "http://localhost:30002/api/subscriber/"
 url_argocd = "https://localhost:30001/api/v1/"
 
 
@@ -35,12 +36,10 @@ def aether_cli(ctx, enterprise, site):
 @aether_cli.command()
 @click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("plmn", nargs=1, type=click.STRING)
-@click.argument("address", nargs=1, type=click.STRING)
-@click.option("--port", default=5000, type=click.INT, help="Subscriber config service Port", show_default=True)
 @click.option("--opc", default="981d464c7c52eb6e5036234984ad0bcf", type=click.STRING, help="OPC code", show_default=True)
 @click.option("--key", default="5122250214c33e723a5dd523fc145fc0", type=click.STRING, help="Key code", show_default=True)
 @click.option("--sqn", default="16f3b3f70fc2", type=click.STRING, help="Sequence number", show_default=True)
-def add_sim(imsi, plmn, address, port, opc, key, sqn):
+def add_sim(imsi, plmn, opc, key, sqn):
     """
     Add a subscriber to Aether's core. An imsi sim card number should be provided.
 
@@ -51,11 +50,9 @@ def add_sim(imsi, plmn, address, port, opc, key, sqn):
 
     PLMN is the PLMN code. ex: '20893'
 
-    ADDRESS is the address of the subscriber config server.
     """
     # SD-Core subscriber's provisioning api endpoint.
-    url = "http://{a}:{p}/api/subscriber/imsi-{i}".format(
-        a=address, p=port, i=imsi)
+    url = webui_url + "imsi-{i}".format(i=imsi)
 
     req_body = {
         "UeId": imsi,
