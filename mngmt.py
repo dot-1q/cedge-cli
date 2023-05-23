@@ -503,9 +503,11 @@ def get_apps(ctx):
 @click.argument("repo", nargs=1, type=click.STRING)
 @click.argument("path", nargs=1, type=click.STRING)
 @click.argument("cluster", nargs=1, type=click.STRING)
+@click.option('--helm', is_flag=True,default=False, help="Application is an Helm chart", show_default=True)
+@click.option("--values", default="values.yaml", type=click.STRING, help="Value file for Helm Chart", show_default=True)
 @click.option("--ap", default="default", type=click.STRING, help="Application deployment project", show_default=True)
 @click.option("--dns", default="default", type=click.STRING, help="Application deployment namespace", show_default=True)
-def deploy_app(ctx, name, repo, path, cluster, ap, dns):
+def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
     """
     Create a new ArgoCD application deployemnt. This command can be used to deploy the router needed for the k8s cluster,
     as well as deployment the edge services on any remote cluster
@@ -538,6 +540,7 @@ def deploy_app(ctx, name, repo, path, cluster, ap, dns):
             "source": {
                 "repoURL": repo,
                 "path": path,
+                "helm": {"valueFiles": [values] } if helm is True else None
             },
             "syncPolicy": {
                 "automated": {"selfHeal": True},
