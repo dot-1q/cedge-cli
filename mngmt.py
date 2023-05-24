@@ -418,8 +418,53 @@ def get_site(ctx):
     # Grab the enterprise and site from the command line for the api endpoint
     enterprise = ctx.obj["ENTERPRISE"]
 
-    url = roc_api_url + "{e}/site".format(e=enterprise)
+    url = roc_api_url + "{e}/site/".format(e=enterprise)
     response = requests.get(url)
+    print(response)
+    print(response.content)
+
+
+@aether_cli.command()
+@click.pass_context
+@click.argument("device_id", nargs=1, type=click.STRING)
+@click.argument("device_group", nargs=1, type=click.STRING)
+@click.argument("sim_id", nargs=1, type=click.STRING)
+@click.argument("imsi", nargs=1, type=click.STRING)
+def delete_device(ctx,device_id, device_group, sim_id, imsi):
+    """
+    Delete Device
+    
+    DEVICE_ID is a unique identifier of the device.
+    DEVICE_GROOUP is a unique identifier of the device group.
+    SIM_ID is a unique identifier of the sim card.
+    IMSI is the imsi number of the device.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
+
+    #Delete from Device Group
+    url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{d}".format(e=enterprise, s=site,dg=device_group,d=device_id)
+    response = requests.delete(url)
+    print(response)
+    print(response.content)
+
+    #Delete from Device List
+    url = roc_api_url + "{e}/site/{s}/device/{d}".format(e=enterprise, s=site,d=device_id)
+    response = requests.delete(url)
+    print(response)
+    print(response.content)
+
+    #Delete from SIM Cards
+    url = roc_api_url + "{e}/site/{s}/sim-card/{sim}".format(e=enterprise, s=site, sim=sim_id)
+    response = requests.delete(url)
+    print(response)
+    print(response.content)
+
+    #Delete from SD-Core
+    url = webui_url + "imsi-{i}".format(i=imsi)
+    response = requests.delete(url)
     print(response)
     print(response.content)
 
