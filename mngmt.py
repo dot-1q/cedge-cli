@@ -593,6 +593,67 @@ def delete_app(ctx, app_name):
 
     print(response)
 
+
+@aether_cli.command()
+@click.pass_context
+@click.argument("slice_id", nargs=1, type=click.STRING)
+def delete_slice(ctx, slice_id):
+    """
+    Delete a slice
+
+    SLICE_ID is a unique identifier for the slice
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
+
+    url = roc_api_url + "{e}/site/{s}/slice/{sl}".format(
+        e=enterprise, s=site, sl=slice_id
+    )
+
+    req_body = {
+        "enterprise-id": enterprise,
+        "site-id": site,
+        "slice-id": slice_id,
+    }
+
+    # Send POST
+    response = requests.delete(url, json=req_body)
+    print(response)
+    print(response.content)
+
+
+@aether_cli.command()
+@click.pass_context
+@click.argument("upf_id", nargs=1, type=click.STRING)
+def delete_upf(ctx, upf_id):
+    """
+    Delete a UPF
+
+    UPF_ID is a unique identifier for the UPF
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
+
+    url = roc_api_url + "{e}/site/{s}/upf/{u}".format(
+        e=enterprise, s=site, u=upf_id
+    )
+
+    req_body = {
+        "enterprise-id": enterprise,
+        "site-id": site,
+        "upf-id": upf_id,
+    }
+
+    # Send POST
+    response = requests.delete(url, json=req_body)
+    print(response)
+    print(response.content)
+
+
 def get_argocd_token():
     """
     Get Bearer ArgoCD API token
