@@ -410,6 +410,25 @@ def create_ip_pool(ctx, ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
 
 @aether_cli.command()
 @click.pass_context
+@click.argument("device_id", nargs=1, type=click.STRING)
+def get_device(ctx,device_id):
+    """
+    Check if device exists.
+
+    DEVICE_ID is the unique indentifier of the device.
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
+
+    url = roc_api_url + "{e}/site/{s}/device/{d}".format(e=enterprise,s=site,d=device_id)
+    response = requests.get(url)
+    print(response.status_code)
+
+
+@aether_cli.command()
+@click.pass_context
 def get_site(ctx):
     """
     Get a description of all the sites of an enterprise.
