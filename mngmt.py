@@ -2,18 +2,24 @@ import requests
 import click
 import os
 import json
+import yaml
+from yaml.loader import SafeLoader
 from urllib3.exceptions import InsecureRequestWarning
 
 # Suppress only the single warning from urllib3 needed.
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
+# Load the enterprise YAML description
+with open('enterprise.yaml') as f:
+    enterprise_yaml = yaml.load(f, Loader=SafeLoader)
+
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
 # that on an Aether Standalone deployment the API port will be different.
-
-roc_api_url = "http://localhost:31194/aether-roc-api/aether/v2.1.x/"
-webui_url = "http://localhost:30002/api/subscriber/"
-url_argocd = "https://localhost:30001/api/v1/"
+# The IP of the  Aether Management Platform is defined in the yaml
+roc_api_url = "http://"+enterprise_yaml['amp']+":31194/aether-roc-api/aether/v2.1.x/"
+webui_url = "http://"+enterprise_yaml['amp']+":30002/api/subscriber/"
+url_argocd = "https://"+enterprise_yaml['amp']+":30001/api/v1/"
 
 
 @click.group()
@@ -152,36 +158,15 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 @aether_cli.command()
 @click.pass_context
 @click.argument("upf-id", nargs=1, type=click.STRING)
-@click.argument("address", nargs=1, type=click.STRING)
-@click.argument("config_endpoint", nargs=1, type=click.STRING)
-@click.argument("repo", nargs=1, type=click.STRING)
-@click.argument("path", nargs=1, type=click.STRING)
-@click.argument("cluster", nargs=1, type=click.STRING)
-@click.argument("values", nargs=1, type=click.STRING)
-@click.argument("app_name", nargs=1, type=click.STRING)
 @click.option("--un", default="UPF", type=click.STRING, help="UPF Name", show_default=True)
 @click.option("--ud", default="User Plane Function", type=click.STRING, help="UPF Description", show_default=True)
 @click.option("--up", default=8805, type=click.INT, help="UPF Port", show_default=True)
 @click.option("--ap", default="default", type=click.STRING, help="App deployment project", show_default=True)
-def create_upf(ctx, upf_id, address, config_endpoint, repo, path, cluster, values, app_name, un, ud, up, ap):
+def create_upf(ctx, upf_id, un, ud, up, ap):
     """
     Create a new UPF and deploy it. Each UPF can only be associated with a single site and slice.
 
-    UPF_ID is a unique identifies for the new UPF. ex: "upf4"
-
-    ADDRESS is the address of the UPF. ex: "10.10.1.4"
-
-    CONFIG_ENDPOINT is the address of the config endpoint of the UPF. ex: "http://10.10.1.4:8080"
-
-    REPO is the address of the github repo where the upf helm chart is. ex: "https://github.com/dot-1q/5g_connected_edge.git"
-
-    PATH is the path of the folder where the helm chart is. ex: "site3/upf4_helm"
-
-    CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
-
-    VALUES is the name of the override helm chart values file. ex: "values_upf4.yaml"
-
-    APP_NAME is the name of the deployment name for ArgoCD. ex: "site3-upf4"
+    UPF_ID is a unique identifier for the new UPF. ex: "upf4"
     """
 
     # Grab the enterprise and site from the command line for the api endpoint
