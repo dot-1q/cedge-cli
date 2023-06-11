@@ -3,7 +3,7 @@ ua:
   project: default
   repository: "https://github.com/dot-1q/5g_connected_edge"
   locations:
-    core: https://10.255.32.152:6443
+    core: https://kubernetes.default.svc
     site1: https://10.255.32.208:6443
     site2: https://10.255.32.232:6443
     site3: https://10.255.32.231:6443
