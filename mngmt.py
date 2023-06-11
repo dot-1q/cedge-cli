@@ -566,26 +566,25 @@ def get_app_status(ctx, app_name):
 @aether_cli.command()
 @click.pass_context
 @click.argument("name", nargs=1, type=click.STRING)
-@click.argument("repo", nargs=1, type=click.STRING)
 @click.argument("path", nargs=1, type=click.STRING)
-@click.argument("cluster", nargs=1, type=click.STRING)
 @click.option('--helm', is_flag=True,default=False, help="Application is an Helm chart", show_default=True)
 @click.option("--values", default="values.yaml", type=click.STRING, help="Value file for Helm Chart", show_default=True)
 @click.option("--ap", default="default", type=click.STRING, help="Application deployment project", show_default=True)
 @click.option("--dns", default="default", type=click.STRING, help="Application deployment namespace", show_default=True)
-def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
+def deploy_app(ctx, name, path, helm, values, ap, dns):
     """
     Create a new ArgoCD application deployemnt. This command can be used to deploy the router needed for the k8s cluster,
     as well as deployment the edge services on any remote cluster
 
     NAME is the name of the deployment. ex: "site3-router"
 
-    REPO is the address of the github repo that manages this deployment. ex: "https://github.com/dot-1q/5g_connected_edge.git"
-
     PATH is the path of the folder where the k8s deployment file is. ex: "site3/router"
 
-    CLUSTER is IP address of the cluster. Could be local or external. ex: "https://10.0.30.154:6443"
     """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
 
     token = get_argocd_token()
     headers = {
@@ -599,11 +598,11 @@ def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
         "spec": {
             "destination": {
                 "namespace": dns,
-                "server": cluster,
+                "server": spec[enterprise]['locations'][site],
             },
             "project": ap,
             "source": {
-                "repoURL": repo,
+                "repoURL": spec[enterprise]['repository'],
                 "path": path,
                 "helm" if helm is True else "" : ({"valueFiles": [values] }) if helm is True else ""
             },
@@ -613,8 +612,6 @@ def deploy_app(ctx, name, repo, path, cluster, helm, values, ap, dns):
             },
         }
     }
-
-    print(req_body)
 
     # Send POST
     response = requests.post(url_argocd+"applications", json=req_body, headers=headers, verify=False)
