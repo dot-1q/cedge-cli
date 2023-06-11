@@ -11,15 +11,15 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 # Load the enterprise YAML description
 with open('enterprise.yaml') as f:
-    enterprise_yaml = yaml.load(f, Loader=SafeLoader)
+    spec = yaml.load(f, Loader=SafeLoader)
 
 # Base API URL
 # This if or Aether-in-a-Box and is meant to be run on the same VM that it is deployed, this means
 # that on an Aether Standalone deployment the API port will be different.
 # The IP of the  Aether Management Platform is defined in the yaml
-roc_api_url = "http://"+enterprise_yaml['amp']+":31194/aether-roc-api/aether/v2.1.x/"
-webui_url = "http://"+enterprise_yaml['amp']+":30002/api/subscriber/"
-url_argocd = "https://"+enterprise_yaml['amp']+":30001/api/v1/"
+roc_api_url = "http://"+spec['amp']+":31194/aether-roc-api/aether/v2.1.x/"
+webui_url = "http://"+spec['amp']+":30002/api/subscriber/"
+url_argocd = "https://"+spec['amp']+":30001/api/v1/"
 
 
 @click.group()
@@ -177,8 +177,8 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
         "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=upf_id)
 
     req_body = {
-        "address": address,
-        "config-endpoint": config_endpoint,
+        "address": spec[enterprise]['upfs'][upf_id]['address'],
+        "config-endpoint": spec[enterprise]['upfs'][upf_id]['endpoint'],
         "description": ud,
         "display-name": un,
         "port": up,
@@ -197,19 +197,19 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
 
     req_body = {
         "metadata": {
-            "name": app_name,
+            "name": site+"-"+upf_id,
         },
         "spec": {
             "destination": {
                 "namespace": upf_id,
-                "server": cluster
+                "server": spec[enterprise]['locations'][site]
             },
             "project": ap,
             "source": {
-                "repoURL": repo,
-                "path": path,
+                "repoURL": spec[enterprise]['repository'],
+                "path": spec[enterprise]['upfs'][upf_id]['path'],
                 "helm": {
-                    "valueFiles": [values]
+                    "valueFiles": [spec[enterprise]['upfs'][upf_id]['values']]
                 }
             },
             "syncPolicy": {
@@ -218,6 +218,7 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
             },
         }
     }
+    print(req_body)
 
     # Send POST
     response = requests.post(url_argocd+"applications", json=req_body,

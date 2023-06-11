@@ -67,4 +67,4 @@ target/
 .vscode/
 
 #Python secret
-argocd_secrets.py
+#argocd_secrets.py
