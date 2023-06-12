@@ -187,7 +187,9 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
 
     # Send POST
     response = requests.post(url, json=req_body)
+
     print(response)
+    print(response.content)
 
     # Use the Argocd API to create the upf app deployment
     token = get_argocd_token()
@@ -218,7 +220,6 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
             },
         }
     }
-    print(req_body)
 
     # Send POST
     response = requests.post(url_argocd+"applications", json=req_body,
