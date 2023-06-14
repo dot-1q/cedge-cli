@@ -237,10 +237,10 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
 @click.argument("upf_id", nargs=1, type=click.STRING)
 @click.option("--sn", default="Slice", type=click.STRING, help="Slice Name", show_default=True)
 @click.option("--sd", default="Network Slice", type=click.STRING, help="Slice Description", show_default=True)
-@click.option("--mbr_dl", default=100000000, type=click.INT, help="Slice Maximum Bit Rate Downlink", show_default=True)
-@click.option("--mbr_dl_bs", default=625000, type=click.INT, help="Slice MBR Downlink Burst Size", show_default=True)
-@click.option("--mbr_ul", default=100000000, type=click.INT, help="Slice Maximum Bit Rate Uplink", show_default=True)
-@click.option("--mbr_ul_bs", default=625000, type=click.INT, help="Slice MBR Uplink Burst Size", show_default=True)
+@click.option("--mbr_dl", default=200000000, type=click.INT, help="Slice Maximum Bit Rate Downlink", show_default=True)
+@click.option("--mbr_dl_bs", default=12500000, type=click.INT, help="Slice MBR Downlink Burst Size", show_default=True)
+@click.option("--mbr_ul", default=200000000, type=click.INT, help="Slice Maximum Bit Rate Uplink", show_default=True)
+@click.option("--mbr_ul_bs", default=12500000, type=click.INT, help="Slice MBR Uplink Burst Size", show_default=True)
 # TODO: Add multiple device groups to a slice
 def create_slice(ctx, slice_id, device_group, service_differentiator, slice_service_type, upf_id, sn, sd, mbr_dl, mbr_dl_bs, mbr_ul, mbr_ul_bs):
     """
