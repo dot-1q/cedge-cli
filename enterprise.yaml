@@ -11,24 +11,28 @@ ua:
     upf1:
       location: site1
       address: "10.10.1.2"
+      port: 30001
       endpoint: "http://10.10.1.2:30010"
       path: "site1/upf1_2_helm"
       values: "values_upf1.yaml"
     upf2:
       location: site1
       address: "10.10.1.2"
+      port: 30002
       endpoint: "http://10.10.1.2:30020"
       path: "site1/upf1_2_helm"
       values: "values_upf2.yaml"
     upf3:
       location: site2
       address: "10.10.1.3"
+      port: 8805
       endpoint: "http://10.10.1.3:8080"
       path: "site2/upf3_helm"
       values: "values_upf3.yaml"
     upf4:
       location: site3
       address: "10.10.1.4"
+      port: 8805
       endpoint: "http://10.10.1.4:8080"
       path: "site3/upf4_helm"
       values: "values_upf4.yaml"

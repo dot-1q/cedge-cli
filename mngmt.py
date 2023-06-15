@@ -160,9 +160,8 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 @click.argument("upf-id", nargs=1, type=click.STRING)
 @click.option("--un", default="UPF", type=click.STRING, help="UPF Name", show_default=True)
 @click.option("--ud", default="User Plane Function", type=click.STRING, help="UPF Description", show_default=True)
-@click.option("--up", default=8805, type=click.INT, help="UPF Port", show_default=True)
 @click.option("--ap", default="default", type=click.STRING, help="App deployment project", show_default=True)
-def create_upf(ctx, upf_id, un, ud, up, ap):
+def create_upf(ctx, upf_id, un, ud, ap):
     """
     Create a new UPF and deploy it. Each UPF can only be associated with a single site and slice.
 
@@ -181,7 +180,7 @@ def create_upf(ctx, upf_id, un, ud, up, ap):
         "config-endpoint": spec[enterprise]['upfs'][upf_id]['endpoint'],
         "description": ud,
         "display-name": un,
-        "port": up,
+        "port": spec[enterprise]['upfs'][upf_id]['port'],
         "upf-id": upf_id,
     }
 
