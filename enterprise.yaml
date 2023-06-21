@@ -1,4 +1,4 @@
-amp: "10.10.1.1"
+amp: "10.255.32.156"
 ua:
   project: default
   repository: "https://github.com/dot-1q/5g_connected_edge"
