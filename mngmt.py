@@ -42,8 +42,8 @@ def aether_cli(ctx, enterprise, site):
 @aether_cli.command()
 @click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("plmn", nargs=1, type=click.STRING)
-@click.option("--opc", default="981d464c7c52eb6e5036234984ad0bcf", type=click.STRING, help="OPC code", show_default=True)
-@click.option("--key", default="5122250214c33e723a5dd523fc145fc0", type=click.STRING, help="Key code", show_default=True)
+@click.option("--opc", default="28a182edf3c70667a90a66c619cec91f", type=click.STRING, help="OPC code", show_default=True)
+@click.option("--key", default="fd4b1e644a2dd4d2c8c03cf5fe12238d", type=click.STRING, help="Key code", show_default=True)
 @click.option("--sqn", default="16f3b3f70fc2", type=click.STRING, help="Sequence number", show_default=True)
 def add_sim(imsi, plmn, opc, key, sqn):
     """
