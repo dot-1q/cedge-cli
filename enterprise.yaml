@@ -31,8 +31,8 @@ ua:
       values: "values_upf3.yaml"
     upf4:
       location: site3
-      address: "10.10.1.4"
+      address: "10.255.32.231"
       port: 8805
-      endpoint: "http://10.10.1.4:8080"
+      endpoint: "http://10.255.32.232:8080"
       path: "site3/upf4_helm"
       values: "values_upf4.yaml"
