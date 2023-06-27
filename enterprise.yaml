@@ -4,15 +4,15 @@ ua:
   repository: "https://github.com/dot-1q/5g_connected_edge"
   locations:
     core: https://kubernetes.default.svc
-    site1: https://192.168.94.18:6443
+    site1: https://192.168.94.14:6443
     site2: https://10.255.32.232:6443
     site3: https://10.255.32.231:6443
   upfs:
     upf1:
       location: site1
-      address: "192.168.94.18"
+      address: "192.168.94.14"
       port: 8805
-      endpoint: "http://192.168.94.18:8080"
+      endpoint: "http://192.168.94.14:8080"
       path: "site1/upf1_helm"
       values: "values_upf1.yaml"
     upf2:
