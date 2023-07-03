@@ -294,6 +294,47 @@ def create_slice(ctx, slice_id, device_group, service_differentiator, slice_serv
 
 @aether_cli.command()
 @click.pass_context
+@click.argument("slice-id", nargs=1, type=click.STRING)
+@click.argument("download", nargs=1, type=click.INT)
+@click.argument("upload", nargs=1, type=click.INT)
+@click.option("--mbr_dl_bs", default=12500000, type=click.INT, help="Slice MBR Downlink Burst Size", show_default=True)
+@click.option("--mbr_ul_bs", default=12500000, type=click.INT, help="Slice MBR Uplink Burst Size", show_default=True)
+# TODO: Add multiple device groups to a slice
+def edit_slice(ctx, slice_id, download, upload, mbr_dl_bs, mbr_ul_bs):
+    """
+    Edit the download and upload values of an existing slice.
+
+    SLICE_ID is a unique indentifier for the slice. ex: "slice4"
+
+    DOWNLOAD is the value for the download limit in bps. ex: "2000000000"
+
+    UPLOAD is the value for the UPLOAD limit in bps. ex: "2000000000"
+
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
+
+    url = roc_api_url + "{e}/site/{s}/slice/{sl}/mbr".format(
+        e=enterprise, s=site, sl=slice_id
+    )
+
+    req_body = {
+        "downlink": download,
+        "downlink-burst-size": mbr_dl_bs,
+        "uplink": upload,
+        "uplink-burst-size": mbr_ul_bs,
+    }
+
+    # Send POST
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
+
+
+@aether_cli.command()
+@click.pass_context
 @click.argument("device_group_id", nargs=1, type=click.STRING)
 @click.argument("traffic_class", nargs=1, type=click.STRING)
 @click.argument("ip_domain", nargs=1, type=click.STRING)
@@ -354,8 +395,8 @@ def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_i
 @click.argument("mtu", nargs=1, type=click.INT)
 @click.option("--ipn", default="IP pool", type=click.STRING, help="IP pool name", show_default=True)
 @click.option("--ipd", default="IP addresses for UE's", type=click.STRING, help="IP pool description", show_default=True)
-@click.option("--dnsp", default="1.1.1.1", type=click.STRING, help="Primary DNS server", show_default=True)
-@click.option("--dnss", default="1.0.0.1", type=click.STRING, help="Secondary DNS server", show_default=True)
+@click.option("--dnsp", default="8.8.8.8", type=click.STRING, help="Primary DNS server", show_default=True)
+@click.option("--dnss", default="8.8.8.8", type=click.STRING, help="Secondary DNS server", show_default=True)
 def create_ip_pool(ctx, ip_pool_id, dnn, subnet, mtu, ipn, ipd, dnsp, dnss):
     """
     Create a new IP pool of addresses for UE's.
