@@ -389,6 +389,42 @@ def create_device_group(ctx, device_group_id, traffic_class, ip_domain, device_i
 
 @aether_cli.command()
 @click.pass_context
+@click.argument("device_group", nargs=1, type=click.STRING)
+@click.option("--download", default=2000000000, type=click.INT, help="Download bandwidth", show_default=True)
+@click.option("--upload", default=2000000000, type=click.INT, help="Upload bandwidth", show_default=True)
+def edit_device_group(ctx, device_group, download, upload):
+    """
+    Edit the download and upload values of an existing device group.
+
+    DEVICE_GROUP is a unique indentifier for the device group. ex: "device-group-2"
+
+    DOWNLOAD is the value for the download limit in bps. ex: "2000000000"
+
+    UPLOAD is the value for the UPLOAD limit in bps. ex: "2000000000"
+
+    """
+
+    # Grab the enterprise and site from the command line for the api endpoint
+    enterprise = ctx.obj["ENTERPRISE"]
+    site = ctx.obj["SITE"]
+
+    url = roc_api_url + "{e}/site/{s}/device-group/{dg}/mbr".format(
+        e=enterprise, s=site, dg=device_group
+    )
+
+    req_body = {
+        "downlink": download,
+        "uplink": upload,
+    }
+
+    # Send POST
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
+
+
+@aether_cli.command()
+@click.pass_context
 @click.argument("ip-pool-id", nargs=1, type=click.STRING)
 @click.argument("dnn", nargs=1, type=click.STRING)
 @click.argument("subnet", nargs=1, type=click.STRING)
