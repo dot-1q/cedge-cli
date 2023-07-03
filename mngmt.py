@@ -295,8 +295,8 @@ def create_slice(ctx, slice_id, device_group, service_differentiator, slice_serv
 @aether_cli.command()
 @click.pass_context
 @click.argument("slice-id", nargs=1, type=click.STRING)
-@click.argument("download", nargs=1, type=click.INT)
-@click.argument("upload", nargs=1, type=click.INT)
+@click.option("--download", default=2000000000, type=click.INT, help="Download bandwidth", show_default=True)
+@click.option("--upload", default=2000000000, type=click.INT, help="Upload bandwidth", show_default=True)
 @click.option("--mbr_dl_bs", default=12500000, type=click.INT, help="Slice MBR Downlink Burst Size", show_default=True)
 @click.option("--mbr_ul_bs", default=12500000, type=click.INT, help="Slice MBR Uplink Burst Size", show_default=True)
 # TODO: Add multiple device groups to a slice
