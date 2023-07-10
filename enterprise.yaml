@@ -13,26 +13,26 @@ ua:
       address: "upf1"
       port: 8805
       endpoint: "http://upf1-http:8080"
-      path: "site1/upf1_2_helm"
+      path: "site1/upf"
       values: "values_upf1.yaml"
     upf2:
       location: site2
       address: "upf2"
       port: 8805
       endpoint: "http:/upf2-http:8080"
-      path: "site2/upf1_2_helm"
+      path: "site2/upf"
       values: "values_upf2.yaml"
     upf3:
       location: site2
       address: "upf3"
       port: 8805
       endpoint: "http://upf3-http:8080"
-      path: "site2/upf3_helm"
+      path: "site2/upf"
       values: "values_upf3.yaml"
     upf4:
       location: site3
       address: "upf4"
       port: 8805
       endpoint: "http://upf3-http:8080"
-      path: "site3/upf4_helm"
+      path: "site3/upf"
       values: "values_upf4.yaml"
