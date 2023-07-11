@@ -33,6 +33,6 @@ ua:
       location: site3
       address: "upf4"
       port: 8805
-      endpoint: "http://upf3-http:8080"
+      endpoint: "http://upf4-http:8080"
       path: "site3/upf"
       values: "values_upf4.yaml"
