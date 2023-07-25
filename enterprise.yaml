@@ -16,11 +16,11 @@ ua:
       path: "site1/upf"
       values: "values_upf1.yaml"
     upf2:
-      location: site2
+      location: site1
       address: "upf2"
       port: 8805
       endpoint: "http://upf2-http:8080"
-      path: "site2/upf"
+      path: "site1/upf"
       values: "values_upf2.yaml"
     upf3:
       location: site2
