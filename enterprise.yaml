@@ -4,7 +4,7 @@ ua:
   repository: "https://github.com/dot-1q/5g_connected_edge"
   locations:
     core: https://kubernetes.default.svc
-    site1: https://192.168.94.14:6443
+    site1: https://192.168.94.94:6443
     site2: https://10.255.32.232:6443
     site3: https://10.255.32.231:6443
   upfs:
