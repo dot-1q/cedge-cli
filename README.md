@@ -1,3 +1,4 @@
+# [OUTDATED, WILL BE UPDATED SOON!]
 # Aether ROC CLI tool to manage an Aether Deployment.
 
 This is a simple command line tool that I created to help me manage my Aether-In-a-Box deployment in conjunction with ArgoCD. It is still very early stages and I've only implemented 
