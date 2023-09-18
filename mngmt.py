@@ -42,54 +42,27 @@ def aether_cli(ctx, enterprise, site):
 @aether_cli.command()
 @click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("plmn", nargs=1, type=click.STRING)
-@click.option("--opc", default="28a182edf3c70667a90a66c619cec91f", type=click.STRING, help="OPC code", show_default=True)
-@click.option("--key", default="fd4b1e644a2dd4d2c8c03cf5fe12238d", type=click.STRING, help="Key code", show_default=True)
-@click.option("--sqn", default="16f3b3f70fc2", type=click.STRING, help="Sequence number", show_default=True)
-def add_sim(imsi, plmn, opc, key, sqn):
-    """
-    Add a subscriber to Aether's core. An imsi sim card number should be provided.
-
-    You can find the address of the config server by running 'kubectl get svc -n omec' and noting
-    the 'webui' IP address.
-
-    IMSI is a 15 digit sim card number. ex: '208930000000000'
-
-    PLMN is the PLMN code. ex: '20893'
-
-    """
-    # SD-Core subscriber's provisioning api endpoint.
-    url = webui_url + "imsi-{i}".format(i=imsi)
-
-    req_body = {
-        "UeId": imsi,
-        "plmnId": plmn,
-        "opc": opc,
-        "key": key,
-        "sequenceNumber": sqn,
-    }
-
-    # Send POST
-    response = requests.post(url, json=req_body)
-    print(response)
-    print(response.content)
-
-
-@aether_cli.command()
-@click.pass_context
 @click.argument("sim-id", nargs=1, type=click.STRING)
-@click.argument("imsi", nargs=1, type=click.STRING)
 @click.argument("device-id", nargs=1, type=click.STRING)
 @click.argument("device-group", nargs=1, type=click.STRING)
 @click.option("--sd", default="New Sim Card", type=click.STRING, help="Sim card description", show_default=True)
 @click.option("--sn", default="New UE Sim", type=click.STRING, help="Sim card name", show_default=True)
 @click.option("--dn", default="New Device", type=click.STRING, help="Device name", show_default=True)
 @click.option("--dd", default="UE Device", type=click.STRING, help="Device description", show_default=True)
-def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
+@click.option("--opc", default="28a182edf3c70667a90a66c619cec91f", type=click.STRING, help="OPC code", show_default=True)
+@click.option("--key", default="fd4b1e644a2dd4d2c8c03cf5fe12238d", type=click.STRING, help="Key code", show_default=True)
+@click.option("--sqn", default="16f3b3f70fc2", type=click.STRING, help="Sequence number", show_default=True)
+@click.pass_context
+def add_subscriber(ctx, imsi, plmn, sim_id, device_id, device_group, opc, key, sqn, sd, sn, dn, dd):
     """
-    Add a new sim card, device and assign it to device group.
-    This can only be done to sim card numbers that have been previously added to the ROC Core.
+    Add a subscriber to Aether's core. This command first introduces the new subscriber IMSI to 
+    the SD-Core database, and then configures the SIM-Card, Device and Device-Group in Aether ROC.
     Sim card name, description and device name values all have default values but they can be passed
     as optional arguments.
+
+    IMSI is a 15 digit sim card number. ex: '208930000000000'
+
+    PLMN is the PLMN code. ex: '20893'
 
     SIM_ID is a unique sim identifier. ex: 'sim-12345'
 
@@ -104,6 +77,24 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
     enterprise = ctx.obj["ENTERPRISE"]
     site = ctx.obj["SITE"]
 
+    # SD-Core subscriber's provisioning api endpoint.
+    url = webui_url + "imsi-{i}".format(i=imsi)
+
+    req_body = {
+        "UeId": imsi,
+        "plmnId": plmn,
+        "opc": opc,
+        "key": key,
+        "sequenceNumber": sqn,
+    }
+
+    # Send POST
+    # Add to SD-Core
+    response = requests.post(url, json=req_body)
+    print(response)
+    print(response.content)
+
+    ##### Aether ROC Phase
     url = roc_api_url + "{e}/site/{s}/sim-card/{sim}".format(
         e=enterprise, s=site, sim=sim_id
     )
@@ -149,7 +140,7 @@ def setup_ue(ctx, sim_id, imsi, device_id, device_group, sd, sn, dn, dd):
 
     req_body = {"device-id": device_id, "enable": True}
 
-    # Assign to device group
+    # Assign to Device Group
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
