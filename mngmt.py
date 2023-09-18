@@ -243,8 +243,8 @@ def create_upf(ctx, upf_id, un, ud, ap):
 # TODO: Add multiple device groups to a slice
 def create_slice(ctx, slice_id, device_group, service_differentiator, slice_service_type, upf_id, sn, sd, mbr_dl, mbr_dl_bs, mbr_ul, mbr_ul_bs):
     """
-    Create a new Slice. Each Slice must be in only one site and must only have one UPF. Multiple device groups
-    may be added to the slice, but this version does not yet support this.
+    Create a new Slice. Each Slice must be in only one site and must only have one UPF. Multiple device groups may be added to the slice, but this
+version only supports one yet. Additional device groups must be configured manually through Aether ROC GUI.
 
     SLICE_ID is a unique indentifier for the slice. ex: "slice4"
 
