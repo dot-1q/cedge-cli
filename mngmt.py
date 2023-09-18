@@ -650,12 +650,11 @@ def get_app_status(ctx, app_name):
 @click.option("--dns", default="default", type=click.STRING, help="Application deployment namespace", show_default=True)
 def deploy_app(ctx, name, path, helm, values, ap, dns):
     """
-    Create a new ArgoCD application deployemnt. This command can be used to deploy the router needed for the k8s cluster,
-    as well as deployment the edge services on any remote cluster
+    Create a new ArgoCD application deployemnt. This command can be used to deploy any Kubernetes application in any given cluster.
 
-    NAME is the name of the deployment. ex: "site3-router"
+    NAME is the name of the deployment. ex: "site3-upf"
 
-    PATH is the path of the folder where the k8s deployment file is. ex: "site3/router"
+    PATH is the path of the folder where the k8s deployment file is. ex: "site3/upf"
 
     """
 
