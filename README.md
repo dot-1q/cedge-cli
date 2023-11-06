@@ -1,5 +1,11 @@
-# CLI tool to manage a Connected Edge Setup, leveraging Aether/SD-Core and ArgoCD.
+# C-Edge CLI
+<p align="center">
+  <img src="cedge.svg" />
+</p>
 
+#### CLI tool to manage a Connected Edge Setup, leveraging Aether/SD-Core & ArgoCD.
+
+---
 This CLI came to be because of my [own deployment](https://github.com/dot-1q/AiaB-UERANSIM), where i needed to quickly create new UPFs, Slices, add subscribers and so on, and doing so via GUI was tiresome and not enough.
 
 As with [Aether-in-a-box](https://docs.aetherproject.org/master/developer/aiab.html) (now defunct) and [Aether OnRamp](https://github.com/opennetworkinglab/aether-onramp), the default port for both the GUI and API is *31194*, so this tool can be used with both deployments of Aether, with the exepction of the *create_upf* command, which needs ArgoCD to be installed.
