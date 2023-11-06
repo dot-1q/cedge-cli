@@ -1,13 +1,13 @@
-amp: "10.255.32.156"
-ua:
-  project: default
-  repository: "https://github.com/dot-1q/5g_connected_edge"
-  locations:
+amp: "10.255.32.156" # IP address of the Core. Where all the APIs reside.
+ua: # Enterprise name
+  project: default # Project name. Relevant for the ArgoCD API.
+  repository: "https://github.com/dot-1q/5g_connected_edge" # Repository with the Helm charts. This repo needs to be accessible to ArgoCD.
+  locations: # All the different addresses of the remote clusters.
     core: https://kubernetes.default.svc
     site1: https://192.168.94.90:6443
     site2: https://10.255.32.232:6443
     site3: https://10.255.32.231:6443
-  upfs:
+  upfs: # All the different UPFs
     upf1:
       location: site1
       address: "upf1"

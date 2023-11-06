@@ -768,7 +768,7 @@ def delete_upf(ctx, upf_id):
     print(response.content)
 
 
-def get_argocd_token():
+def _get_argocd_token():
     """
     Get Bearer ArgoCD API token
     """
