@@ -1,4 +1,8 @@
-import requests
+nodeSelectors:
+  enabled: false
+  upf:
+    label: node-role.aetherproject.org
+    value: omec-upfimport requests
 import click
 import os
 import json
@@ -182,7 +186,7 @@ def create_upf(ctx, upf_id, un, ud, ap):
     print(response.content)
 
     # Use the Argocd API to create the upf app deployment
-    token = get_argocd_token()
+    token = _get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,
     }
@@ -619,7 +623,7 @@ def get_app_status(ctx, app_name):
     """
 
     # Use the Argocd API to create the upf app deployment
-    token = get_argocd_token()
+    token = _get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,
     }
@@ -653,7 +657,7 @@ def deploy_app(ctx, name, path, helm, values, ap, dns):
     enterprise = ctx.obj["ENTERPRISE"]
     site = ctx.obj["SITE"]
 
-    token = get_argocd_token()
+    token = _get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,
     }
@@ -696,7 +700,7 @@ def delete_app(ctx, app_name):
     """
 
     # Use the Argocd API to create the upf app deployment
-    token = get_argocd_token()
+    token = _get_argocd_token()
     headers = {
         'Authorization': 'Bearer ' + token,
     }
