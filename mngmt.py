@@ -1,8 +1,4 @@
-nodeSelectors:
-  enabled: false
-  upf:
-    label: node-role.aetherproject.org
-    value: omec-upfimport requests
+import requests
 import click
 import os
 import json
