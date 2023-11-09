@@ -5,8 +5,8 @@ ua: # Enterprise name
   locations: # All the different addresses of the remote clusters.
     core: https://kubernetes.default.svc
     site1: https://192.168.94.90:6443
-    site2: https://10.255.32.232:6443
-    site3: https://10.255.32.231:6443
+    site2: https://kubernetes.default.svc
+    site3: https://kubernetes.default.svc
   upfs: # All the different UPFs
     upf1:
       location: site1
@@ -24,15 +24,15 @@ ua: # Enterprise name
       values: "values_upf2.yaml"
     upf3:
       location: site2
-      address: "upf3"
+      address: "upf.upf3"
       port: 8805
-      endpoint: "http://upf3-http.omec:8080"
+      endpoint: "http://upf-http.upf3:8080"
       path: "site2/upf"
       values: "values_upf3.yaml"
     upf4:
       location: site3
-      address: "upf4"
+      address: "upf.upf4"
       port: 8805
-      endpoint: "http://upf4-http.omec:8080"
+      endpoint: "http://upf-http.upf4:8080"
       path: "site3/upf"
       values: "values_upf4.yaml"
