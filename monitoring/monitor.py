@@ -5,3 +5,6 @@ subscribers uplink and downlink network throughput.
 """
 
 import requests
+
+def get_sub_ul(ip_addr):
+    pass

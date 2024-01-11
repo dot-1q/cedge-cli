@@ -10,7 +10,7 @@ from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 # Load the enterprise YAML description
-with open('../enterprise.yaml') as f:
+with open('enterprise.yaml') as f:
     spec = yaml.load(f, Loader=SafeLoader)
 
 # Base API URL
