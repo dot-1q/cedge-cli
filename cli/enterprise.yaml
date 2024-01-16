@@ -4,35 +4,20 @@ ua: # Enterprise name
   repository: "https://github.com/dot-1q/5g_connected_edge" # Repository with the Helm charts. This repo needs to be accessible to ArgoCD.
   locations: # All the different addresses of the remote clusters.
     core: https://kubernetes.default.svc
-    site1: https://192.168.94.90:6443
+    site1: https://kubernetes.default.svc
     site2: https://kubernetes.default.svc
-    site3: https://kubernetes.default.svc
   upfs: # All the different UPFs
     upf1:
-      location: site1
-      address: "upf1"
+      location: site2
+      address: "upf.upf1"
       port: 8805
-      endpoint: "http://upf1-http.omec:8080"
+      endpoint: "http://upf-http.upf1:8080"
       path: "site1/upf"
       values: "values_upf1.yaml"
     upf2:
-      location: site1
-      address: "upf2"
-      port: 8805
-      endpoint: "http://upf2-http.omec:8080"
-      path: "site1/upf"
-      values: "values_upf2.yaml"
-    upf3:
       location: site2
-      address: "upf.upf3"
+      address: "upf.upf2"
       port: 8805
-      endpoint: "http://upf-http.upf3:8080"
+      endpoint: "http://upf-http.upf2:8080"
       path: "site2/upf"
-      values: "values_upf3.yaml"
-    upf4:
-      location: site3
-      address: "upf.upf4"
-      port: 8805
-      endpoint: "http://upf-http.upf4:8080"
-      path: "site3/upf"
-      values: "values_upf4.yaml"
+      values: "values_upf2.yaml"
