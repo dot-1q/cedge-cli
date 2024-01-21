@@ -1,7 +1,5 @@
 import requests
 
-url = "http://127.0.0.1:5000/create_upf"
-
 req_body = {
     "amp":"10.255.32.183",
     "enterprise":"ua",
@@ -20,6 +18,8 @@ req_body = {
     "values":"values_upf4.yaml"
 }
 
+url = "http://cedge-api:8080/get_sub_bw"
+
 # Create SIM
-response = requests.post(url, json=req_body)
+response = requests.get(url, json=req_body)
 print(response.content)

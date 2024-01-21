@@ -1,6 +1,7 @@
 from flask import Flask, request
 import requests
 import json
+import time
 
 app = Flask(__name__)
 #roc_api_url = "http://"+spec['amp']+":31194/aether-roc-api/aether/v2.1.x/"
@@ -9,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "<p>Hello, World! OK</p>"
 
 @app.route("/add_subscriber", methods=["POST"])
 def add_subscriber():
@@ -84,6 +85,23 @@ def create_upf():
     else:
         return 'Only POST method, no UPF created'
 
+@app.route("/get_sub_bw", methods=["GET"])
+def get_sub_bw():
+    print ("get sub bandwidth values")
+
+    while True:
+        # Send POST
+        url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?"
+        query = "query=upf_session_tx_bytes"
+        response = requests.get(url + query, verify=False).json()
+
+        data = response['data']['result'][0]['value'][1]
+        print(data)
+        time.sleep(5)
+        #print("Upload: " + data)
+
+    return 'SUB1 with IMSI XXXXXXX HAS DL of 200000mpbs'
+
 def _get_argocd_token(amp):
     """
     Get Bearer ArgoCD API token
@@ -104,3 +122,6 @@ def _get_argocd_token(amp):
 
     # Return the token value
     return json.loads(response.text)['token']
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int("5000"), debug=True)

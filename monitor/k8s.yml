@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: cedge-monitor
+  namespace: omec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cedge-monitor
+  template:
+    metadata:
+      labels:
+        app: cedge-monitor
+    spec:
+      containers:
+      - name: cedge-monitor
+        image: docker.io/802dot1q/cedge-monitor:v0.1.1
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "10m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
