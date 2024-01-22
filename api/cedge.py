@@ -85,22 +85,31 @@ def create_upf():
     else:
         return 'Only POST method, no UPF created'
 
-@app.route("/get_sub_bw", methods=["GET"])
-def get_sub_bw():
-    print ("get sub bandwidth values")
+@app.route("/get_sub_ul/<sub>", methods=["GET"])
+def get_sub_ul(sub):
+    # Send POST
+    url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
+    query = '8 * irate(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[13579]", ue_ip="{s}"}}[15s])'.format(s=sub)
 
-    while True:
-        # Send POST
-        url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?"
-        query = "query=upf_session_tx_bytes"
-        response = requests.get(url + query, verify=False).json()
-
+    response = requests.get(url+query, verify=False).json()
+    try:
         data = response['data']['result'][0]['value'][1]
-        print(data)
-        time.sleep(5)
-        #print("Upload: " + data)
+        return data
+    except:
+        return 'no_value'
 
-    return 'SUB1 with IMSI XXXXXXX HAS DL of 200000mpbs'
+@app.route("/get_sub_dl/<sub>", methods=["GET"])
+def get_sub_dl(sub):
+    # Send POST
+    url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
+    query = '8 * irate(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[02468]", ue_ip="{s}"}}[15s])'.format(s=sub)
+
+    response = requests.get(url+query, verify=False).json()
+    try:
+        data = response['data']['result'][0]['value'][1]
+        return data
+    except:
+        return 'no_value'
 
 def _get_argocd_token(amp):
     """
