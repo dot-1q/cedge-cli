@@ -71,3 +71,7 @@ target/
 
 #Python secret
 argocd_secrets.py
+
+# Devspace
+.devspace/
+**devspace_start.sh
