@@ -1,7 +1,7 @@
 from flask import Flask, request
 import requests
 import json
-import time
+from ipaddress import IPv4Address as ip
 
 app = Flask(__name__)
 #roc_api_url = "http://"+spec['amp']+":31194/aether-roc-api/aether/v2.1.x/"
@@ -107,6 +107,50 @@ def get_sub_dl(sub):
     response = requests.get(url+query, verify=False).json()
     try:
         data = response['data']['result'][0]['value'][1]
+        return data
+    except:
+        return 'no_value'
+
+@app.route("/get_subscribers/", methods=["GET"])
+def get_subscribers():
+    url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
+    query = 'count (smf_pdu_session_profile) by (id,ip, enterprise)'
+
+    response = requests.get(url+query, verify=False).json()
+
+    data = []
+    for values in response['data']['result']:
+        # Check if said IMSI (id) is present in the data array
+        if not any(a['id'] == values['metric']['id'] for a in data):
+            data.append(values['metric'])
+        else:
+        # If yes, update its IP address only if its bigger then the one currently saved.
+            for index, metric in enumerate(data):
+                if (metric['id'] == values['metric']['id']) and (ip(values['metric']['ip']) > ip(metric['ip'])):
+                    data[index] = values['metric']
+    try:
+        return data
+    except:
+        return 'no_value'
+
+@app.route("/get_subscribers/<slice>", methods=["GET"])
+def get_subscribers_by_slice(slice):
+    url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
+    query = 'count (smf_pdu_session_profile{{enterprise="{e}"}}) by (id,ip)'.format(e=slice)
+
+    response = requests.get(url+query, verify=False).json()
+
+    data = []
+    for values in response['data']['result']:
+        # Check if said IMSI (id) is present in the data array
+        if not any(a['id'] == values['metric']['id'] for a in data):
+            data.append(values['metric'])
+        else:
+        # If yes, update its IP address only if its bigger then the one currently saved.
+            for index, metric in enumerate(data):
+                if (metric['id'] == values['metric']['id']) and (ip(values['metric']['ip']) > ip(metric['ip'])):
+                    data[index] = values['metric']
+    try:
         return data
     except:
         return 'no_value'

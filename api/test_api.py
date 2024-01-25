@@ -20,19 +20,11 @@ req_body = {
     "values":"values_upf4.yaml"
 }
 
-url = "http://cedge-api:8080/get_sub_ul/172.1.237.137"
+url = "http://cedge-api:8080/get_subscribers/"
 latest_values = deque([],maxlen=10)
 
-while 1:
-    # Create SIM
-    response = requests.get(url, json=req_body)
-    # Decode bytes to int, and then convert bps to Mbps
-
-    try:    
-        value = float(response.content.decode('utf-8')) / 10**6
-        latest_values.append(value)
-        print("{v} Mbps".format(v=value))
-        print("Max in deque: {m}".format(m=max(latest_values)))
-    except:
-        print("No value scraped")
-    time.sleep(3)
+# Create SIM
+response = requests.get(url, json=req_body)
+# Decode bytes to int, and then convert bps to Mbps
+data = response.json()
+print(data)

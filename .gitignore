@@ -67,7 +67,7 @@ target/
 .vscode/
 
 #OS X
-.DS_Store
+**.DS_Store
 
 #Python secret
 argocd_secrets.py

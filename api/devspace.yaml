@@ -26,7 +26,8 @@ images:
     dockerfile: ./Dockerfile
     docker:
       args:
-        - "--platform linux/amd64"
+        - "--platform"
+        - "linux/amd64"
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -47,6 +48,7 @@ dev:
     sync:
       - path: ./
         excludePaths:
+        - .DS_Store
         - .gitignore
         - Dockerfile
         - k8s.yml
