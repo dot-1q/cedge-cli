@@ -6,15 +6,26 @@ subscribers uplink and downlink network throughput.
 
 import requests
 import time
+from collections import deque
 
 def get_sub_ul(ip_addr):
-    pass
-
-url = "http://cedge-api.omec:8080/get_sub_bw"
-
-
-while 1:
-    # Create SIM
+    url = "http://cedge-api:8080/get_sub_ul/{ip}".format(ip=ip_addr)
     response = requests.get(url)
-    print(response.content)
-    time.sleep(2)
+    # Return the bps values in Mbps
+    return float(response.content.decode('utf-8')) / 10**6
+
+
+def get_subs(slice):
+    url = "http://cedge-api:8080/get_subscribers/{s}".format(s=slice)
+    response = requests.get(url).json()
+    # Return the IP addresses of the subscribers
+    return [a['ip'] for a in response]
+
+subs = get_subs('slice1')
+
+values = deque(maxlen=10)
+while 1:
+    print(values)
+    values.append(get_sub_ul(subs[0]))
+    print("Max in deque: ", max(values))
+    time.sleep(3)

@@ -8,10 +8,6 @@ app = Flask(__name__)
 #webui_url = "http://"+spec['amp']+":30002/api/subscriber/"
 #url_argocd = "https://"+spec['amp']+":30001/api/v1/"
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World! OK</p>"
-
 @app.route("/add_subscriber", methods=["POST"])
 def add_subscriber():
     if requests.method == 'POST':
@@ -154,6 +150,10 @@ def get_subscribers_by_slice(slice):
         return data
     except:
         return 'no_value'
+
+@app.route("/edit_slice/<slice>", methods=["GET"])
+def edit_slice(slice):
+    pass
 
 def _get_argocd_token(amp):
     """

@@ -1,5 +1,5 @@
 version: v2beta1
-name: cedge-monitor
+name: aether-cli
 
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
@@ -22,7 +22,7 @@ pipelines:
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
   app:
-    image: docker.io/802dot1q/cedge-monitor:v0
+    image: docker.io/802dot1q/cedge-monitor:v0.1.1
     dockerfile: ./Dockerfile
 
 # This is a list of `deployments` that DevSpace can create for this project
@@ -37,12 +37,19 @@ deployments:
 dev:
   app:
     # Search for the container that runs this image
-    imageSelector: docker.io/802dot1q/cedge-monitor:v0
+    imageSelector: docker.io/802dot1q/cedge-monitor:v0.1.1
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: ghcr.io/loft-sh/devspace-containers/python:3-alpine
     # Sync files between the local filesystem and the development container
     sync:
       - path: ./
+        excludePaths:
+        - .DS_Store
+        - .gitignore
+        - Dockerfile
+        - k8s.yml
+        - devspace.yaml
+        - /venv
     # Open a terminal and use the following command to start it
     terminal:
       command: ./devspace_start.sh
