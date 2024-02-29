@@ -1,5 +1,5 @@
 version: v2beta1
-name: cedge-api
+name: aether-cli
 
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
@@ -22,12 +22,8 @@ pipelines:
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
   app:
-    image: docker.io/802dot1q/cedge-api:v0.1.2
+    image: docker.io/802dot1q/cedge-api:v0.1.4
     dockerfile: ./Dockerfile
-    docker:
-      args:
-        - "--platform"
-        - "linux/amd64"
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -41,7 +37,7 @@ deployments:
 dev:
   app:
     # Search for the container that runs this image
-    imageSelector: docker.io/802dot1q/cedge-api:v0.1.2
+    imageSelector: docker.io/802dot1q/cedge-api:v0.1.4
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: ghcr.io/loft-sh/devspace-containers/python:3-alpine
     # Sync files between the local filesystem and the development container
@@ -49,11 +45,13 @@ dev:
       - path: ./
         excludePaths:
         - .DS_Store
-        - .gitignore
+        - .git_ignore
+        - Dockerfile
         - Dockerfile
         - k8s.yml
-        - devspace.yaml
+        - devspace.yml
         - /venv
+
     # Open a terminal and use the following command to start it
     terminal:
       command: ./devspace_start.sh
@@ -68,10 +66,10 @@ dev:
       - gitCredentials: true
     # Forward the following ports to be able access your application via localhost
     ports:
-      - port: "8080"
+      - port: "5000"
     # Open the following URLs once they return an HTTP status code other than 502 or 503
     open:
-      - url: http://localhost:8080
+      - url: http://localhost:5000
 
 # Use the `commands` section to define repeatable dev workflows for this project 
 commands:

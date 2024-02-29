@@ -8,7 +8,7 @@ ua: # Enterprise name
     site2: https://kubernetes.default.svc
   upfs: # All the different UPFs
     upf1:
-      location: site2
+      location: site1
       address: "upf.upf1"
       port: 8805
       endpoint: "http://upf-http.upf1:8080"
@@ -21,3 +21,10 @@ ua: # Enterprise name
       endpoint: "http://upf-http.upf2:8080"
       path: "site2/upf"
       values: "values_upf2.yaml"
+    upf3:
+      location: site1
+      address: "upf.upf3"
+      port: 8805
+      endpoint: "http://upf-http.upf3:8080"
+      path: "site1/upf"
+      values: "values_upf3.yaml"

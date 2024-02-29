@@ -4,23 +4,27 @@ import json
 from ipaddress import IPv4Address as ip
 
 app = Flask(__name__)
-#roc_api_url = "http://"+spec['amp']+":31194/aether-roc-api/aether/v2.1.x/"
+
+roc_api_url = "http://aether-roc-umbrella-aether-roc-api.aether-roc:8181/aether/v2.1.x/"
 #webui_url = "http://"+spec['amp']+":30002/api/subscriber/"
 #url_argocd = "https://"+spec['amp']+":30001/api/v1/"
 
+# TODO:
+# Add a subscriber.
 @app.route("/add_subscriber", methods=["POST"])
 def add_subscriber():
-    if requests.method == 'POST':
-        pass
+    if request.method == 'POST':
+        return '0'
+
     else:
         return 'Only POST method, no subscriber added'
 
-
+# Create an UPF
 @app.route("/create_upf", methods=["POST"])
 def create_upf():
     if request.method == 'POST':
         # Get the request JSON data
-        data = request.json
+        data = request.get_json()
 
         roc_api_url = "http://"+data['amp']+":31194/aether-roc-api/aether/v2.1.x/"
         url_argocd = "https://"+data['amp']+":30001/api/v1/"
@@ -78,14 +82,17 @@ def create_upf():
         # Send POST
         response = requests.post(url_argocd+"applications", json=req_body,
                                 headers=headers, verify=False)
+
+        return 'UPF created successfully'
     else:
         return 'Only POST method, no UPF created'
 
+# Get specific UE uplink value. IP required.
 @app.route("/get_sub_ul/<sub>", methods=["GET"])
 def get_sub_ul(sub):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = '8 * irate(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[13579]", ue_ip="{s}"}}[15s])'.format(s=sub)
+    query = '8 * avg_over_time(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[13579]", ue_ip="{s}"}}[5s])'.format(s=sub)
 
     response = requests.get(url+query, verify=False).json()
     try:
@@ -94,11 +101,12 @@ def get_sub_ul(sub):
     except:
         return 'no_value'
 
+# Get specific UE downlink value. IP required.
 @app.route("/get_sub_dl/<sub>", methods=["GET"])
 def get_sub_dl(sub):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = '8 * irate(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[02468]", ue_ip="{s}"}}[15s])'.format(s=sub)
+    query = '8 * avg_over_time(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[02468]", ue_ip="{s}"}}[5s])'.format(s=sub)
 
     response = requests.get(url+query, verify=False).json()
     try:
@@ -107,6 +115,7 @@ def get_sub_dl(sub):
     except:
         return 'no_value'
 
+# Get the IP and IMSI of ALL subscribers of ALL slices.
 @app.route("/get_subscribers/", methods=["GET"])
 def get_subscribers():
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
@@ -129,6 +138,7 @@ def get_subscribers():
     except:
         return 'no_value'
 
+# Get the IP and IMSI of ALL subscribers of given SLICE.
 @app.route("/get_subscribers/<slice>", methods=["GET"])
 def get_subscribers_by_slice(slice):
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
@@ -151,9 +161,31 @@ def get_subscribers_by_slice(slice):
     except:
         return 'no_value'
 
-@app.route("/edit_slice/<slice>", methods=["GET"])
-def edit_slice(slice):
-    pass
+#Edit a slice
+@app.route("/edit_slice/", methods=["POST"])
+def edit_slice():
+    data = []
+
+    if request.method == 'POST':
+        data = request.get_json()
+
+        url = roc_api_url + \
+            "{e}/site/{s}/slice/{sl}/mbr".format(e=data['enterprise'], s=data['site'], sl=data['slice'])
+
+        req_body = {
+            "downlink": data['download'],
+            "downlink-burst-size": data['mbr_dl_bs'],
+            "uplink": data['upload'],
+            "uplink-burst-size": data['mbr_ul_bs'],
+        }
+
+        response = requests.post(url, json=req_body)
+        print(response)
+        print(response.content)
+
+        return 'edited'
+
+    return 'Only POST requests allowed'
 
 def _get_argocd_token(amp):
     """

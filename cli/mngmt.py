@@ -295,7 +295,7 @@ def edit_slice(ctx, slice_id, download, upload, mbr_dl_bs, mbr_ul_bs):
     """
     Edit the download and upload values of an existing slice.
 
-    SLICE_ID is a unique indentifier for the slice. ex: "slice4"
+    SLICE_ID is a unique identifier for the slice. ex: "slice4"
 
     DOWNLOAD is the value for the download limit in bps. ex: "2000000000"
 

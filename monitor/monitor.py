@@ -11,8 +11,14 @@ from collections import deque
 def get_sub_ul(ip_addr):
     url = "http://cedge-api:8080/get_sub_ul/{ip}".format(ip=ip_addr)
     response = requests.get(url)
-    # Return the bps values in Mbps
-    return float(response.content.decode('utf-8')) / 10**6
+
+    try:
+        # Convert from bps to mbps
+        value = float(response.content.decode('utf-8')) / 10**6
+    except:
+        # If the above code fails, i.e, no values are given, we return 0
+        value = 0
+    return value
 
 
 def get_subs(slice):
@@ -22,10 +28,9 @@ def get_subs(slice):
     return [a['ip'] for a in response]
 
 subs = get_subs('slice1')
+print('Sub:' , subs[0])
 
-values = deque(maxlen=10)
 while 1:
-    print(values)
-    values.append(get_sub_ul(subs[0]))
-    print("Max in deque: ", max(values))
+    val = get_sub_ul(subs[0])
+    print("Sub {s} has bw: {b}".format(s=subs[0],b=val))
     time.sleep(3)
