@@ -30,7 +30,6 @@ def create_upf():
         url_argocd = "https://"+data['amp']+":30001/api/v1/"
         enterprise = data['enterprise']
         site = data['site']
-        
         url = roc_api_url + \
             "{e}/site/{s}/upf/{u}".format(e=enterprise, s=site, u=data['upf_id'])
 

@@ -6,7 +6,6 @@ subscribers uplink and downlink network throughput.
 
 import requests
 import time
-from collections import deque
 
 def get_sub_ul(ip_addr):
     url = "http://cedge-api:8080/get_sub_ul/{ip}".format(ip=ip_addr)
@@ -17,7 +16,7 @@ def get_sub_ul(ip_addr):
         value = float(response.content.decode('utf-8')) / 10**6
     except:
         # If the above code fails, i.e, no values are given, we return 0
-        value = 0
+        value = None
     return value
 
 
@@ -27,10 +26,36 @@ def get_subs(slice):
     # Return the IP addresses of the subscribers
     return [a['ip'] for a in response]
 
-subs = get_subs('slice1')
-print('Sub:' , subs[0])
 
+# Analyze subs from slice 1
+is_first = True
 while 1:
-    val = get_sub_ul(subs[0])
-    print("Sub {s} has bw: {b}".format(s=subs[0],b=val))
     time.sleep(3)
+    subs = get_subs('slice1')
+    val = get_sub_ul(subs[0])
+    # If there's no values for the subs
+    if val == None:
+        print("No one connected")
+        continue
+    print("Sub {s} has bw: {b}".format(s=subs[0],b=val))
+   
+    # If the bw is less than 50Mbps, edit the slice
+    if val < 60:
+        # First value is always too low
+        if is_first:
+            is_first = False
+            continue
+
+        url = "http://cedge-api:8080/edit_slice/"
+        req_body = {
+            "enterprise":"ua",
+            "site":"site1",
+            "slice":"slice3",
+            "download":2000000000,
+            "mbr_dl_bs":12500000,
+            "upload":10000000,
+            "mbr_ul_bs":12500000,
+        }
+        response = requests.post(url, json=req_body)
+        data = response
+        print(data.content)
