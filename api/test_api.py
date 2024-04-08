@@ -20,8 +20,8 @@ import requests
 # }
 
 req_body = {
-    "enterprise":"ua",
-    "site":"site1",
+    "enterprise": "ua",
+    "site": "site1",
     "slice": "slice3",
     "download": 10000000,
     "mbr_dl_bs": 12500000,
@@ -29,9 +29,16 @@ req_body = {
     "mbr_ul_bs": 12500000,
 }
 
-url = "http://cedge-api:8080/edit_slice/"
+url = "http://cedge-api:8080/get_upf_ul/upf1"
 
-response = requests.post(url, json=req_body)
+response = requests.get(url)
 # Decode bytes to int, and then convert bps to Mbps
-data = response.json()
-print(data)
+data = response
+print("Uplink", data.content)
+
+url = "http://cedge-api:8080/get_upf_dl/upf1"
+
+response = requests.get(url)
+# Decode bytes to int, and then convert bps to Mbps
+data = response
+print("Downlink", data.content)

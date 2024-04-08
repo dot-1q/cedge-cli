@@ -1,7 +1,7 @@
 ---
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
+metadata:
   name: cedge-api
   namespace: omec
 spec:
@@ -15,17 +15,17 @@ spec:
         app: cedge-api
     spec:
       containers:
-      - name: cedge-api
-        image: docker.io/802dot1q/cedge-api:v0.1.5
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        ports:
-        - containerPort: 5000
+        - name: cedge-api
+          image: docker.io/802dot1q/cedge-api:v0.1.5
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 200m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+          ports:
+            - containerPort: 5000
 ---
 apiVersion: v1
 kind: Service
@@ -34,7 +34,7 @@ metadata:
   namespace: omec
 spec:
   ports:
-  - port: 8080
-    targetPort: 5000
+    - port: 8080
+      targetPort: 5000
   selector:
     app: cedge-api
