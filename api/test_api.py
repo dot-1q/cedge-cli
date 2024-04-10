@@ -19,26 +19,38 @@ import requests
 #     "values":"values_upf4.yaml"
 # }
 
+# Request body for Slice edit. Save for later
+# req_body = {
+#     "enterprise": "ua",
+#     "site": "site1",
+#     "slice": "slice3",
+#     "download": 10000000,
+#     "mbr_dl_bs": 12500000,
+#     "upload": 2000000000,
+#     "mbr_ul_bs": 12500000,
+# }
+
+# Request body for Slice Creation. Save for later
 req_body = {
     "enterprise": "ua",
     "site": "site1",
-    "slice": "slice3",
-    "download": 10000000,
+    "slice_id": "slice3",
+    "sdesc": "Slice 3 for site 1 TEST",
+    "device_group": "device-group-3",
+    "sname": "Slice 3",
+    "mbr_dl": 500000000,
     "mbr_dl_bs": 12500000,
-    "upload": 2000000000,
+    "mbr_ul": 50000000,
     "mbr_ul_bs": 12500000,
+    "service_differentiator": "030303",
+    "slice_service_type": "3",
+    "upf_id": "upf3",
 }
 
-url = "http://cedge-api:8080/get_upf_ul/upf1"
 
-response = requests.get(url)
+url = "http://cedge-api:8080/create_slice"
+
+response = requests.post(url, json=req_body)
 # Decode bytes to int, and then convert bps to Mbps
 data = response
-print("Uplink", data.content)
-
-url = "http://cedge-api:8080/get_upf_dl/upf1"
-
-response = requests.get(url)
-# Decode bytes to int, and then convert bps to Mbps
-data = response
-print("Downlink", data.content)
+print("Status:", data.content)

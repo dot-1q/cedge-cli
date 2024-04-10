@@ -8,14 +8,39 @@ import requests
 import time
 
 
+# Create a UPF for the new subscribers
+# This is for when we exhaust the current UPFs throughput.
+def create_upf():
+    pass
+
+
 def get_upf_ul(upf):
     url = "http://cedge-api:8080/get_upf_ul/{upf}".format(upf=upf)
     response = requests.get(url)
-    print(response)
+
+    try:
+        # Convert from bps to mbps
+        value = float(response.content.decode("utf-8")) / 10**6
+    except:
+        # If the above code fails, i.e, no values are given, we return 0
+        value = None
+    return value
 
 
-def get_upf_dl(upf):
-    pass
+# TODO: This method needs to be in the API module.
+# Returns all the UPFs from a given site.
+def get_site_upfs(enterprise, site):
+    roc_api_url = (
+        "http://aether-roc-umbrella-aether-roc-api.aether-roc:8181/aether/v2.1.x/"
+    )
+    query = "{e}/site/{s}/upf".format(e=enterprise, s=site)
+    response = requests.get(roc_api_url + query).json()
+
+    l = []
+    # For each entry of upf details, just return their respective ids.
+    for entry in response:
+        l.append(entry["upf-id"])
+    return l
 
 
 def get_sub_ul(ip_addr):
@@ -53,23 +78,15 @@ def edit_slice(slice, value):
     return response
 
 
-# Analyze subs from slice 1
-is_first = True
 while 1:
     time.sleep(3)
-    subs = get_subs("slice1")
-    val = get_sub_ul(subs[0])
-    # If there's no values for the subs
-    if val == None:
-        print("No one connected")
-        continue
-    print("Sub {s} has bw: {b}".format(s=subs[0], b=val))
-
-    # If the bw is less than 50Mbps, edit the slice
-    if val < 50:
-        # First value is always too low
-        if is_first:
-            is_first = False
+    listUpfs = get_site_upfs("ua", "site1")
+    for upf in listUpfs:
+        val = get_upf_ul(upf)
+        # If there's no values for the UPF
+        if val == None:
             continue
-        r = edit_slice("slice3", 10000000)
-        print("Edited slice")
+        print("{u} has bw: {b}".format(u=upf, b=val))
+        if upf == "upf1" and val < 40:
+            r = edit_slice("slice3", 10000000)
+            print("Edited slice")

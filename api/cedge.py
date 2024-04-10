@@ -20,6 +20,61 @@ def add_subscriber():
         return "Only POST method, no subscriber added"
 
 
+# TODO: Implement
+# Returns all the UPFs from a given site.
+def get_site_upfs():
+    pass
+
+
+# TODO: Implement
+# Returns all the Sites from a given enterprise
+def get_sites():
+    pass
+
+
+# Create a Slice
+@app.route("/create_slice", methods=["POST"])
+def create_slice():
+    if request.method == "POST":
+        # Get the request JSON data
+        data = request.get_json()
+
+        # Grab the enterprise and site from the command line for the api endpoint
+        enterprise = data["enterprise"]
+        site = data["site"]
+
+        url = roc_api_url + "{e}/site/{s}/slice/{sl}".format(
+            e=enterprise, s=site, sl=data["slice_id"]
+        )
+
+        req_body = {
+            "connectivity-service": "5g",
+            "default-behavior": "ALLOW-ALL",
+            "description": data["sdesc"],
+            "device-group": [
+                {"device-group": data["device_group"], "enable": True}
+                # TODO: Multiple device groups go here
+            ],
+            "display-name": data["sname"],
+            "mbr": {
+                "downlink": data["mbr_dl"],
+                "downlink-burst-size": data["mbr_dl_bs"],
+                "uplink": data["mbr_ul"],
+                "uplink-burst-size": data["mbr_ul_bs"],
+            },
+            "sd": data["service_differentiator"],
+            "slice-id": data["slice_id"],
+            "sst": data["slice_service_type"],
+            "upf": data["upf_id"],
+        }
+        # Send POST
+        response = requests.post(url, json=req_body)
+        # print(response.content)
+        return response.content
+    else:
+        return "Only Post Method Allowed"
+
+
 # Create an UPF
 @app.route("/create_upf", methods=["POST"])
 def create_upf():
@@ -209,7 +264,7 @@ def edit_slice():
 def get_upf_ul(upf):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = 'sum(8 * rate(upf_bytes_count{{dir="rx",iface="Access", namespace="{upf_id}"}}[5s]))'.format(
+    query = 'sum(8 * rate(upf_bytes_count{{dir="tx",iface="Core", namespace="{upf_id}"}}[5s]))'.format(
         upf_id=upf
     )
     response = requests.get(url + query, verify=False).json()
@@ -225,7 +280,7 @@ def get_upf_ul(upf):
 def get_upf_dl(upf):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = 'sum(8 * rate(upf_bytes_count{{dir="rx",iface="Core", namespace="{upf_id}"}}[5s]))'.format(
+    query = 'sum(8 * rate(upf_bytes_count{{dir="tx",iface="Access", namespace="{upf_id}"}}[5s]))'.format(
         upf_id=upf
     )
     response = requests.get(url + query, verify=False).json()
