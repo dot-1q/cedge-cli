@@ -6,7 +6,7 @@ from ipaddress import IPv4Address as ip
 app = Flask(__name__)
 
 roc_api_url = "http://aether-roc-umbrella-aether-roc-api.aether-roc:8181/aether/v2.1.x/"
-# webui_url = "http://"+spec['amp']+":30002/api/subscriber/"
+webui_url = "http://webui.omec:5000/api/subscriber/"
 # url_argocd = "https://"+spec['amp']+":30001/api/v1/"
 
 
@@ -15,9 +15,101 @@ roc_api_url = "http://aether-roc-umbrella-aether-roc-api.aether-roc:8181/aether/
 @app.route("/add_subscriber", methods=["POST"])
 def add_subscriber():
     if request.method == "POST":
-        return "0"
+        # Get the request JSON data
+        data = request.get_json()
+        # Grab the enterprise and site from the command line for the api endpoint
+        enterprise = data["enterprise"]
+        site = data["site"]
+
+        # SD-Core subscriber's provisioning api endpoint.
+        url = webui_url + "imsi-{i}".format(i=data["imsi"])
+
+        req_body = {
+            "UeId": data["imsi"],
+            "plmnId": data["plmn"],
+            "opc": data["opc"],
+            "key": data["key"],
+            "sequenceNumber": data["sqn"],
+        }
+
+        # Send POST
+        # Add to SD-Core
+        response = requests.post(url, json=req_body)
+        print(response)
+
+        ################## Aether ROC Phase #################################
+
+        # Create SIM [Start]
+        url = roc_api_url + "{e}/site/{s}/sim-card/{sim}".format(
+            e=enterprise, s=site, sim=data["sim_id"]
+        )
+
+        req_body = {
+            "description": data["sd"],
+            "display-name": data["sn"],
+            "enable": True,
+            # "iccid": "string", # Not using this at the moment.
+            "imsi": data["imsi"],
+            "sim-id": data["sim_id"],
+        }
+
+        response = requests.post(url, json=req_body)
+        print(response)
+        # Create SIM [End]
+
+        # Create Device [Start]
+        url = roc_api_url + "{e}/site/{s}/device/{device}".format(
+            e=enterprise, s=site, device=data["device_id"]
+        )
+
+        req_body = {
+            "description": data["dd"],
+            "device-id": data["device_id"],
+            "display-name": data["dn"],
+            # "imei": "string", # Not using this at the moment.
+            "sim-card": data["sim_id"],
+        }
+
+        response = requests.post(url, json=req_body)
+        print(response)
+        # Create Device [End]
+
+        # Add Device to device group [Start]
+        url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{d}".format(
+            e=enterprise, s=site, dg=data["device_group"], d=data["device_id"]
+        )
+
+        req_body = {"device-id": data["device_id"], "enable": True}
+
+        response = requests.post(url, json=req_body)
+        # Add Device to device group [End]
+        return response.content
     else:
         return "Only POST method, no subscriber added"
+
+
+# Assign a device group to a slice, so that the subscribers can have connectivity.
+@app.route("/assign_slice", methods=["POST"])
+def assign_slice():
+    if request.method == "POST":
+        # Get the request JSON data
+        data = request.get_json()
+
+        # Grab the enterprise and site from the command line for the api endpoint
+        enterprise = data["enterprise"]
+        site = data["site"]
+
+        url = roc_api_url + "{e}/site/{s}/slice/{sl}/device-group/{dg}".format(
+            e=enterprise, s=site, sl=data["slice_id"], dg=data["device_group_id"]
+        )
+
+        req_body = {"device-group": data["device_group_id"], "enable": True}
+
+        # Send POST
+        response = requests.post(url, json=req_body)
+        return response.content
+    else:
+        return "Only Post Method Allowed"
 
 
 # TODO: Implement
@@ -30,6 +122,40 @@ def get_site_upfs():
 # Returns all the Sites from a given enterprise
 def get_sites():
     pass
+
+
+# TODO: Create an *EMPTY* device group, so we can add a subscriber
+@app.route("/create_device_group", methods=["POST"])
+def create_device_group():
+    if request.method == "POST":
+        # Get the request JSON data
+        data = request.get_json()
+
+        # Grab the enterprise and site from the command line for the api endpoint
+        enterprise = data["enterprise"]
+        site = data["site"]
+
+        url = roc_api_url + "{e}/site/{s}/device-group/{dg}".format(
+            e=enterprise, s=site, dg=data["device_group_id"]
+        )
+
+        req_body = {
+            "description": data["dgd"],
+            "device-group-id": data["device_group_id"],
+            "display-name": data["dgn"],
+            "ip-domain": data["ip_domain"],
+            "mbr": {
+                "downlink": data["mbr_dl"],
+                "uplink": data["mbr_ul"],
+            },
+            "traffic-class": data["traffic_class"],
+        }
+
+        # Send POST
+        response = requests.post(url, json=req_body)
+        return response.content
+    else:
+        return "Only POST method, no Device Group created"
 
 
 # Create a Slice
@@ -101,7 +227,6 @@ def create_upf():
 
         # Send POST
         response = requests.post(url, json=req_body)
-        italic = ""
 
         print(response)
         print(response.content)

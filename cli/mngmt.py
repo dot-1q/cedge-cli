@@ -138,7 +138,9 @@ def add_subscriber(
     print(response)
     print(response.content)
 
-    ##### Aether ROC Phase
+    ################## Aether ROC Phase #################################
+
+    # Create SIM [Start]
     url = roc_api_url + "{e}/site/{s}/sim-card/{sim}".format(
         e=enterprise, s=site, sim=sim_id
     )
@@ -152,13 +154,12 @@ def add_subscriber(
         "sim-id": sim_id,
     }
 
-    # Create SIM
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
+    # Create SIM [End]
 
-    ###################################################################
-
+    # Create Device [Start]
     url = roc_api_url + "{e}/site/{s}/device/{device}".format(
         e=enterprise, s=site, device=device_id
     )
@@ -171,23 +172,22 @@ def add_subscriber(
         "sim-card": sim_id,
     }
 
-    # Create Device
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
+    # Create Device [End]
 
-    # 3
-
+    # Add Device to device group [Start]
     url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{d}".format(
         e=enterprise, s=site, dg=device_group, d=device_id
     )
 
     req_body = {"device-id": device_id, "enable": True}
 
-    # Assign to Device Group
     response = requests.post(url, json=req_body)
     print(response)
     print(response.content)
+    # Add Device to device group [End]
 
 
 @aether_cli.command()

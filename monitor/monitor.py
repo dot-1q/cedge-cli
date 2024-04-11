@@ -14,6 +14,12 @@ def create_upf():
     pass
 
 
+# Create a SLICE for the new subscribers
+# Similarly to the UPF creation, this is to give connectivity to the new subcribers
+def create_slice():
+    pass
+
+
 def get_upf_ul(upf):
     url = "http://cedge-api:8080/get_upf_ul/{upf}".format(upf=upf)
     response = requests.get(url)
