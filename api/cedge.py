@@ -10,8 +10,6 @@ webui_url = "http://webui.omec:5000/api/subscriber/"
 # url_argocd = "https://"+spec['amp']+":30001/api/v1/"
 
 
-# TODO:
-# Add a subscriber.
 @app.route("/add_subscriber", methods=["POST"])
 def add_subscriber():
     if request.method == "POST":
@@ -305,27 +303,17 @@ def get_sub_dl(sub):
 # Get the IP and IMSI of ALL subscribers of ALL slices.
 @app.route("/get_subscribers/", methods=["GET"])
 def get_subscribers():
-    url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = "count (smf_pdu_session_profile) by (id,ip, enterprise)"
-
-    response = requests.get(url + query, verify=False).json()
-
-    data = []
-    for values in response["data"]["result"]:
-        # Check if said IMSI (id) is present in the data array
-        if not any(a["id"] == values["metric"]["id"] for a in data):
-            data.append(values["metric"])
-        else:
-            # If yes, update its IP address only if its bigger then the one currently saved.
-            for index, metric in enumerate(data):
-                if (metric["id"] == values["metric"]["id"]) and (
-                    ip(values["metric"]["ip"]) > ip(metric["ip"])
-                ):
-                    data[index] = values["metric"]
+    url = "http://metricfunc:9301/nmetric-func/v1/subscriber/all"
+    response = requests.get(url, verify=False).json()
+    data = {}
+    for values in response:
+        if values != "":
+            print(response)
+            data[values] = get_ue_ip(values)
     try:
         return data
     except:
-        return "no_value"
+        return "", 404
 
 
 # Get the IP and IMSI of ALL subscribers of given SLICE.
@@ -354,6 +342,17 @@ def get_subscribers_by_slice(slice):
         return data
     except:
         return "no_value"
+
+
+# Get the IP address of a given IMSI
+@app.route("/get_ue_ip/<imsi>", methods=["GET"])
+def get_ue_ip(imsi):
+    url = "http://metricfunc:9301/nmetric-func/v1/subscriber/" + imsi
+    data = requests.get(url).json()
+    try:
+        return data["ipaddress"]
+    except:
+        return "", 404
 
 
 # Edit a slice

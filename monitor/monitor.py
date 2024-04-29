@@ -1,11 +1,19 @@
 """
 Monitoring process that will be responsible for detecting 
-and act upon the network changes, more specifically, 
+and act upon the network changes, more specifically,
 subscribers uplink and downlink network throughput.
 """
 
 import requests
 import time
+
+# Priorities 1 and 2. Rest are best effor
+# Priority 1: 15Mbps
+# Priority 2: 10Mbps
+priority = {
+    "1": ["imsi-208990000000000", "imsi-208990000000001"],
+    "2": ["imsi-208990000000002"],
+}
 
 
 # Create a UPF for the new subscribers
@@ -17,6 +25,11 @@ def create_upf():
 # Create a SLICE for the new subscribers
 # Similarly to the UPF creation, this is to give connectivity to the new subcribers
 def create_slice():
+    pass
+
+
+# From a given IMSI, get its IP, if its connected to the network.
+def get_ue_ip(imsi):
     pass
 
 

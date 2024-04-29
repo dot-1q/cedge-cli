@@ -79,17 +79,31 @@ import requests
 # }
 
 # Request body for the assignment of the newly created device group to a slice.
-req_body = {
-    "enterprise": "ua",
-    "site": "site1",
-    "slice_id": "slice3",
-    "device_group_id": "dg4",
-}
+# req_body = {
+#     "enterprise": "ua",
+#     "site": "site1",
+#     "slice_id": "slice3",
+#     "device_group_id": "dg4",
+# }
 
+url = "http://cedge-api:8080/get_subscribers"
 
-url = "http://cedge-api:8080/assign_slice"
-
-response = requests.post(url, json=req_body)
+response = requests.get(url)
 # Decode bytes to int, and then convert bps to Mbps
 data = response
-print("Status:", data.content)
+print("Status:", data)
+print("Content:", data.content)
+
+url = "http://cedge-api:8080/get_ue_ip/"
+
+response = requests.get(url + "imsi-208990000000004")
+# Decode bytes to int, and then convert bps to Mbps
+data = response
+print("Status:", data)
+print("Content:", data.content)
+
+url = "http://cedge-api:8080/get_subscribers/slice1"
+response = requests.get(url)
+# Decode bytes to int, and then convert bps to Mbps
+data = response.json()
+print("Content:", data)
