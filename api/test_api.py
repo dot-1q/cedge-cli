@@ -86,24 +86,35 @@ import requests
 #     "device_group_id": "dg4",
 # }
 
-url = "http://cedge-api:8080/get_subscribers"
+# url = "http://cedge-api:8080/get_subscribers"
+#
+# response = requests.get(url)
+# # Decode bytes to int, and then convert bps to Mbps
+# data = response
+# print("Status:", data)
+# print("Content:", data.content)
+#
+# url = "http://cedge-api:8080/get_ue_ip/"
+#
+# response = requests.get(url + "imsi-208990000000004")
+# # Decode bytes to int, and then convert bps to Mbps
+# data = response
+# print("Status:", data)
+# print("Content:", data.content)
+#
+# url = "http://cedge-api:8080/get_subscribers/slice1"
+# response = requests.get(url)
+# # Decode bytes to int, and then convert bps to Mbps
+# data = response.json()
+# print("Content:", data)
 
-response = requests.get(url)
-# Decode bytes to int, and then convert bps to Mbps
-data = response
-print("Status:", data)
-print("Content:", data.content)
-
-url = "http://cedge-api:8080/get_ue_ip/"
-
-response = requests.get(url + "imsi-208990000000004")
-# Decode bytes to int, and then convert bps to Mbps
-data = response
-print("Status:", data)
-print("Content:", data.content)
-
-url = "http://cedge-api:8080/get_subscribers/slice1"
-response = requests.get(url)
-# Decode bytes to int, and then convert bps to Mbps
-data = response.json()
-print("Content:", data)
+req_body = {
+    "enterprise": "ua",
+    "site": "site1",
+    "old-dg": "device-group-1",
+    "new-dg": "device-group-3",
+    "device-id": "ua-ue-1",
+}
+url = "http://cedge-api:8080/move_ue"
+response = requests.post(url, json=req_body)
+print("Moved:", response.content)

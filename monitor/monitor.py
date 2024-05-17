@@ -11,9 +11,13 @@ import time
 # Priority 1: 15Mbps
 # Priority 2: 10Mbps
 priority = {
-    "1": ["imsi-208990000000000", "imsi-208990000000001"],
-    "2": ["imsi-208990000000002"],
+    "1": ["upf1"],
 }
+
+
+# Move ue
+def move_ue(imsi, slice):
+    pass
 
 
 # Create a UPF for the new subscribers

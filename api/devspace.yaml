@@ -1,5 +1,6 @@
 version: v2beta1
 name: aether-cli
+
 # This is a list of `pipelines` that DevSpace can execute (you can define your own)
 pipelines:
   # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
@@ -16,12 +17,14 @@ pipelines:
       ensure_pull_secrets --all                         # 2. Ensure pull secrets
       build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
       create_deployments --all                          # 4. Deploy Helm charts and manifests specfied as "deployments"
+
 # This is a list of `images` that DevSpace can build for this project
 # We recommend to skip image building during development (devspace dev) as much as possible
 images:
   app:
     image: docker.io/802dot1q/cedge-api:v0.1.9
     dockerfile: ./Dockerfile
+
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
   app:
@@ -29,24 +32,17 @@ deployments:
     kubectl:
       manifests:
         - k8s.yml
+
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
   app:
     # Search for the container that runs this image
-    imageSelector: docker.io/802dot1q/cedge-api:v0.1.8
+    imageSelector: docker.io/802dot1q/cedge-api:v0.1.9
     # Replace the container image with this dev-optimized image (allows to skip image building during development)
     devImage: ghcr.io/loft-sh/devspace-containers/python:3-alpine
     # Sync files between the local filesystem and the development container
     sync:
       - path: ./
-        excludePaths:
-          - .DS_Store
-          - .git_ignore
-          - Dockerfile
-          - Dockerfile
-          - k8s.yml
-          - devspace.yml
-          - /venv
     # Open a terminal and use the following command to start it
     terminal:
       command: ./devspace_start.sh
@@ -61,16 +57,18 @@ dev:
       - gitCredentials: true
     # Forward the following ports to be able access your application via localhost
     ports:
-      - port: "8080"
+      - port: "5000"
     # Open the following URLs once they return an HTTP status code other than 502 or 503
     open:
       - url: http://localhost:5000
+
 # Use the `commands` section to define repeatable dev workflows for this project 
 commands:
   migrate-db:
     command: |-
       echo 'This is a cross-platform, shared command that can be used to codify any kind of dev task.'
       echo 'Anyone using this project can invoke it via "devspace run migrate-db"'
+
 # Define dependencies to other projects with a devspace.yaml
 # dependencies:
 #   api:

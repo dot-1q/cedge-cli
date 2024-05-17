@@ -415,6 +415,51 @@ def get_upf_dl(upf):
         return "no_value"
 
 
+# Move UE to another slice. Each slices has a device group associated,
+# which is where the UE will be moved to.
+@app.route("/move_ue/", methods=["POST"])
+def move_ue():
+    if request.method == "POST":
+        data = request.get_json()
+        url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{id}".format(
+            e=data["enterprise"],
+            s=data["site"],
+            dg=data["old-dg"],
+            id=data["device-id"],
+        )
+
+        # REMOVE FROM OLD DEVICE-GROUP
+        response = requests.delete(url)
+        print(response)
+        print(response.content)
+
+        # ADD TO NEW DEVICE-GROUP
+        url = roc_api_url + "{e}/site/{s}/device-group/{dg}/device/{id}".format(
+            e=data["enterprise"],
+            s=data["site"],
+            dg=data["new-dg"],
+            id=data["device-id"],
+        )
+
+        # HACK:
+        # First disable this moved UE. Aether does not like when its enabled right away.
+        req_body = {"device-id": data["device-id"], "enable": False}
+        response = requests.post(url, json=req_body)
+        print(response)
+        print(response.content)
+
+        # HACK:
+        # Only then we enable it
+        req_body = {"device-id": data["device-id"], "enable": True}
+        response = requests.post(url, json=req_body)
+        print(response)
+        print(response.content)
+
+        return "edited"
+
+    return "Only POST requests allowed"
+
+
 def _get_argocd_token(amp):
     """
     Get Bearer ArgoCD API token
@@ -433,6 +478,7 @@ def _get_argocd_token(amp):
     url_argocd = "https://" + amp + ":30001/api/v1/"
     response = requests.post(url_argocd + "session", json=req_body, verify=False)
 
+    asdf = 0
     # Return the token value
     return json.loads(response.text)["token"]
 
