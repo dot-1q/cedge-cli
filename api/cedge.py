@@ -5,7 +5,7 @@ from ipaddress import IPv4Address as ip
 
 app = Flask(__name__)
 
-roc_api_url = "http://aether-roc-umbrella-aether-roc-api.aether-roc:8181/aether/v2.1.x/"
+roc_api_url = "http://roc-aether-roc-api.aether-roc:8181/aether/v2.1.x/"
 webui_url = "http://webui.omec:5000/api/subscriber/"
 # url_argocd = "https://"+spec['amp']+":30001/api/v1/"
 
@@ -478,7 +478,6 @@ def _get_argocd_token(amp):
     url_argocd = "https://" + amp + ":30001/api/v1/"
     response = requests.post(url_argocd + "session", json=req_body, verify=False)
 
-    asdf = 0
     # Return the token value
     return json.loads(response.text)["token"]
 

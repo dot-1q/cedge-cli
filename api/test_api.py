@@ -113,7 +113,7 @@ req_body = {
     "site": "site1",
     "old-dg": "device-group-1",
     "new-dg": "device-group-3",
-    "device-id": "ua-ue-1",
+    "device-id": "ua-ue-0",
 }
 url = "http://cedge-api:8080/move_ue"
 response = requests.post(url, json=req_body)

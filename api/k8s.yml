@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: cedge-api
-          image: docker.io/802dot1q/cedge-api:v0.1.9
+          image: docker.io/802dot1q/cedge-api:v0.1.11
           resources:
             requests:
               memory: 256Mi
