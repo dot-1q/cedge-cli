@@ -17,7 +17,16 @@ priority = {
 
 # Move ue
 def move_ue(imsi, slice):
-    pass
+    req_body = {
+        "enterprise": "ua",
+        "site": "site1",
+        "old-dg": "device-group-1",
+        "new-dg": "device-group-3",
+        "device-id": "ua-ue-0",
+    }
+    url = "http://cedge-api:8080/move_ue"
+    response = requests.post(url, json=req_body)
+    print("Moved:", response.content)
 
 
 # Create a UPF for the new subscribers
@@ -103,13 +112,17 @@ def edit_slice(slice, value):
 
 while 1:
     time.sleep(3)
-    listUpfs = get_site_upfs("ua", "site1")
-    for upf in listUpfs:
-        val = get_upf_ul(upf)
-        # If there's no values for the UPF
-        if val == None:
-            continue
-        print("{u} has bw: {b}".format(u=upf, b=val))
-        if upf == "upf1" and val < 40:
-            r = edit_slice("slice3", 10000000)
-            print("Edited slice")
+    done = False
+    # listUpfs = get_site_upfs("ua", "site1")
+    # for upf in listUpfs:
+    #     val = get_upf_ul(upf)
+    #     # If there's no values for the UPF
+    #     if val == None:
+    #         continue
+    #     print("{u} has bw: {b}".format(u=upf, b=val))
+    #     if upf == "upf1" and val < 40:
+    #         r = edit_slice("slice3", 10000000)
+    #         print("Edited slice")
+    if not done:
+        done = True
+        move_ue("imsi", "slice")
