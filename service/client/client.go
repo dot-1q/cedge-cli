@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/rand"
 	"fmt"
 	"net"
 	"os"
@@ -8,10 +9,10 @@ import (
 )
 
 const (
-	REMOTE_HOST = "localhost"
-	REMOTE_PORT = "8888"
+	REMOTE_HOST = "10.255.32.163"
+	REMOTE_PORT = "30010"
 
-	PING_PERIOD = 1 * time.Second
+	PING_PERIOD = 10 * time.Millisecond
 )
 
 func Run() {
@@ -22,23 +23,16 @@ func Run() {
 	conn, err := net.Dial("tcp", remoteAddr.String())
 	exit_on_error(err)
 
+	buf := createRandomData()
 	for {
 		time.Sleep(PING_PERIOD)
-		ping(conn, "hello from client")
+		ping(conn, buf)
 	}
 }
 
-func ping(conn net.Conn, msg string) {
-	_, err := conn.Write([]byte(msg))
+func ping(conn net.Conn, msg []byte) {
+	_, err := conn.Write(msg)
 	exit_on_error(err)
-
-	fmt.Println("Sent", msg)
-
-	buf := make([]byte, 512)
-	_, err = conn.Read(buf)
-	exit_on_error(err)
-
-	fmt.Println("Got ", string(buf))
 }
 
 func exit_on_error(err error) {
@@ -46,4 +40,10 @@ func exit_on_error(err error) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func createRandomData() []byte {
+	data := make([]byte, 2048)
+	rand.Read(data)
+	return data
 }

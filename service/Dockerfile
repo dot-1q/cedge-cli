@@ -1,13 +1,19 @@
-FROM --platform=linux/amd64 python:3.12-alpine
+FROM --platform=linux/amd64 golang:1.22 AS build-stage
 
-WORKDIR /app
+WORKDIR /
 
-COPY monitor.py .
-COPY requirements.txt .
+COPY go.mod .
+COPY main.go ./
+COPY /server ./server
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app
 
-#SET OUTPUT TO K8S LOGS
-ENV PYTHONUNBUFFERED=1
+FROM --platform=linux/amd64 gcr.io/distroless/base-debian11 AS final
 
-CMD [ "python3", "./monitor.py" ]
+WORKDIR /
+
+COPY --from=build-stage /app /app
+
+EXPOSE 8888
+
+CMD [ "./app", "--type", "server" ]

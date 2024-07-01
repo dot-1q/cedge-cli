@@ -21,24 +21,26 @@ func Run() {
 
 	fmt.Println("Listening on port", PORT)
 
+	connection := 0
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			go echo(conn)
+			connection++
+			go echo(conn, &connection)
 		}
 	}
 }
 
-func echo(conn net.Conn) {
+func echo(conn net.Conn, connection *int) {
 	defer conn.Close()
 	defer fmt.Println("")
 
 	fmt.Printf("Connected to: %s\n", conn.RemoteAddr().String())
 
 	for {
-		buf := make([]byte, 512)
+		buf := make([]byte, 1024)
 		_, err := conn.Read(buf)
 		if err == io.EOF {
 			return
@@ -48,15 +50,8 @@ func echo(conn net.Conn) {
 			fmt.Println(err)
 			continue
 		}
-
-		fmt.Println(fmt.Sprintf("[%s]", conn.RemoteAddr().String()), string(buf))
-
-		_, err = conn.Write(buf)
-		if err != nil {
-			fmt.Println("Error writing:")
-			fmt.Println(err)
-			continue
-		}
+		fmt.Printf("[%d] Got data from: [%s]\n", *connection, conn.RemoteAddr().String())
+		*connection++
 	}
 }
 

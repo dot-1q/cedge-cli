@@ -20,6 +20,6 @@ func main() {
 		fmt.Println("Starting client:")
 		client.Run()
 	default:
-		fmt.Println("Specify wither `client` or `server` type")
+		fmt.Println("Specify whether `client` or `server` type")
 	}
 }
