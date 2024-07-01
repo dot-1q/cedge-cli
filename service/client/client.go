@@ -12,7 +12,7 @@ const (
 	REMOTE_HOST = "10.255.32.163"
 	REMOTE_PORT = "30010"
 
-	PING_PERIOD = 10 * time.Millisecond
+	PING_PERIOD = 1000 * time.Millisecond
 )
 
 func Run() {
@@ -24,9 +24,12 @@ func Run() {
 	exit_on_error(err)
 
 	buf := createRandomData()
+	c := 0
 	for {
 		time.Sleep(PING_PERIOD)
 		ping(conn, buf)
+		fmt.Printf("[%d] Sent data \n", c)
+		c++
 	}
 }
 
