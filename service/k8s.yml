@@ -27,6 +27,8 @@ spec:
               cpu: 500m
           ports:
             - containerPort: 8888
+          nodeSelector:
+            site: site2
 ---
 apiVersion: v1
 kind: Service
