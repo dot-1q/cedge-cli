@@ -12,10 +12,10 @@ const (
 	REMOTE_HOST = "10.255.32.163"
 	REMOTE_PORT = "30010"
 
-	PING_PERIOD = 1000 * time.Millisecond
+	PING_PERIOD = time.Millisecond
 )
 
-func Run() {
+func Run(PERIOD int) {
 
 	remoteAddr, err := net.ResolveTCPAddr("tcp", REMOTE_HOST+":"+REMOTE_PORT)
 	exit_on_error(err)
@@ -25,8 +25,10 @@ func Run() {
 
 	buf := createRandomData()
 	c := 0
+	sleepTime := PING_PERIOD * time.Duration(PERIOD*int(time.Millisecond))
 	for {
-		time.Sleep(PING_PERIOD)
+		// Sleep for an amount of time passed as input.
+		time.Sleep(sleepTime)
 		ping(conn, buf)
 		fmt.Printf("[%d] Sent data \n", c)
 		c++
