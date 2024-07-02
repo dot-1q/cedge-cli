@@ -25,7 +25,7 @@ func Run(PERIOD int) {
 
 	buf := createRandomData()
 	c := 0
-	sleepTime := PING_PERIOD * time.Duration(PERIOD*int(time.Millisecond))
+	sleepTime := PING_PERIOD * time.Duration(PERIOD)
 	for {
 		// Sleep for an amount of time passed as input.
 		time.Sleep(sleepTime)

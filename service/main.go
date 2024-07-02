@@ -9,6 +9,7 @@ import (
 
 func main() {
 	runtype := flag.String("type", "none", "Type of module to run. Either server or client")
+	period := flag.Int("period", 100, "Delay between requests in milliseconds")
 
 	flag.Parse()
 
@@ -18,7 +19,7 @@ func main() {
 		server.Run()
 	case "client":
 		fmt.Println("Starting client:")
-		client.Run()
+		client.Run(*period)
 	default:
 		fmt.Println("Specify whether `client` or `server` type")
 	}
