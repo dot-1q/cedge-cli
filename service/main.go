@@ -11,6 +11,7 @@ func main() {
 	runtype := flag.String("type", "none", "Type of module to run. Either server or client")
 	period := flag.Int("period", 100, "Delay between requests in milliseconds")
 	iface := flag.String("iface", "", "Interface name to attach to")
+	sv := flag.String("server", "10.255.32.191", "Server address to send the data to")
 
 	flag.Parse()
 
@@ -20,7 +21,7 @@ func main() {
 		server.Run()
 	case "client":
 		fmt.Println("Starting client:")
-		client.Run(*period, *iface)
+		client.Run(*sv, *period, *iface)
 	default:
 		fmt.Println("Specify whether `client` or `server` type")
 	}
