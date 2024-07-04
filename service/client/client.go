@@ -9,18 +9,24 @@ import (
 )
 
 const (
-	REMOTE_HOST = "10.255.32.163"
-	REMOTE_PORT = "30010"
+	REMOTE_HOST = "localhost"
+	REMOTE_PORT = "8888"
 
 	PING_PERIOD = time.Millisecond
 )
 
-func Run(PERIOD int) {
-
+func Run(PERIOD int, ifname string) {
 	remoteAddr, err := net.ResolveTCPAddr("tcp", REMOTE_HOST+":"+REMOTE_PORT)
 	exit_on_error(err)
 
-	conn, err := net.Dial("tcp", remoteAddr.String())
+	iface, _ := net.InterfaceByName(ifname)
+	address, _ := iface.Addrs()
+	ip := &net.TCPAddr{
+		IP: address[1].(*net.IPNet).IP,
+	}
+	dialer := net.Dialer{LocalAddr: ip}
+
+	conn, err := dialer.Dial("tcp", remoteAddr.String())
 	exit_on_error(err)
 
 	buf := createRandomData()
