@@ -6,4 +6,4 @@ importlib-metadata==4.8.3
 requests==2.32.2
 typing-extensions==4.1.1
 urllib3==1.26.19
-zipp==3.6.0
+zipp==3.19.1
