@@ -7,14 +7,6 @@ subscribers uplink and downlink network throughput.
 import requests
 import time
 
-# Priorities 1 and 2. Rest are best effor
-# Priority 1: 15Mbps
-# Priority 2: 10Mbps
-priority = {
-    "1": ["upf1"],
-}
-
-
 # Move ue
 def move_ue(imsi, slice):
     req_body = {
@@ -110,9 +102,9 @@ def edit_slice(slice, value):
     return response
 
 
+done = False
 while 1:
     time.sleep(3)
-    done = False
     # listUpfs = get_site_upfs("ua", "site1")
     # for upf in listUpfs:
     #     val = get_upf_ul(upf)

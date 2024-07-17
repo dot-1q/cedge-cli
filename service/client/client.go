@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	REMOTE_PORT = "30010"
+	// REMOTE_PORT = "30010"
+	REMOTE_PORT = "8888"
 
 	PING_PERIOD = time.Millisecond
 )
@@ -18,25 +19,27 @@ func Run(SERVER string, PERIOD int, ifname string) {
 	remoteAddr, err := net.ResolveTCPAddr("tcp", SERVER+":"+REMOTE_PORT)
 	exit_on_error(err)
 
-	iface, _ := net.InterfaceByName(ifname) // Get interface spec
-	address, _ := iface.Addrs()             // Get its address
-	ip := &net.TCPAddr{                     // Convert to IPv4 address only
-		IP: address[1].(*net.IPNet).IP,
-	}
-	dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
-
-	conn, err := dialer.Dial("tcp", remoteAddr.String())
-	exit_on_error(err)
-
 	buf := createRandomData()
 	sleepTime := PING_PERIOD * time.Duration(PERIOD)
 	c := 0
 	for {
-		// Sleep for an amount of time passed as input.
-		time.Sleep(sleepTime)
-		ping(conn, buf)
-		fmt.Printf("[%d] Sent data \n", c)
-		c++
+		iface, err := net.InterfaceByName(ifname) // Get interface spec
+		// If interface exists, then send info
+		if err != nil {
+			address, _ := iface.Addrs() // Get its address
+			ip := &net.TCPAddr{         // Convert to IPv4 address only
+				IP: address[1].(*net.IPNet).IP,
+			}
+			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
+
+			conn, err := dialer.Dial("tcp", remoteAddr.String())
+			exit_on_error(err)
+			ping(conn, buf)
+			fmt.Printf("[%d] Sent data \n", c)
+			c++
+			// Sleep for an amount of time passed as input.
+			time.Sleep(sleepTime)
+		}
 	}
 }
 
