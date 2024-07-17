@@ -25,7 +25,7 @@ func Run(SERVER string, PERIOD int, ifname string) {
 	for {
 		iface, err := net.InterfaceByName(ifname) // Get interface spec
 		// If interface exists, then send info
-		if err != nil {
+		if err == nil {
 			address, _ := iface.Addrs() // Get its address
 			ip := &net.TCPAddr{         // Convert to IPv4 address only
 				IP: address[1].(*net.IPNet).IP,
