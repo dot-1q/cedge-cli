@@ -39,6 +39,8 @@ func Run(SERVER string, PERIOD int, ifname string) {
 			c++
 			// Sleep for an amount of time passed as input.
 			time.Sleep(sleepTime)
+		} else {
+			fmt.Printf("No interface with name %s\n", ifname)
 		}
 	}
 }
