@@ -28,7 +28,7 @@ func Run(SERVER string, PERIOD int, ifname string) {
 		if err == nil {
 			address, _ := iface.Addrs() // Get its address
 			ip := &net.TCPAddr{         // Convert to IPv4 address only
-				IP: address[1].(*net.IPNet).IP,
+				IP: address[0].(*net.IPNet).IP,
 			}
 			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
 
@@ -37,11 +37,11 @@ func Run(SERVER string, PERIOD int, ifname string) {
 			ping(conn, buf)
 			fmt.Printf("[%d] Sent data \n", c)
 			c++
-			// Sleep for an amount of time passed as input.
-			time.Sleep(sleepTime)
 		} else {
 			fmt.Printf("No interface with name %s\n", ifname)
 		}
+		// Sleep for an amount of time passed as input.
+		time.Sleep(sleepTime)
 	}
 }
 
