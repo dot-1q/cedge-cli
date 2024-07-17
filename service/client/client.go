@@ -9,8 +9,7 @@ import (
 )
 
 const (
-	// REMOTE_PORT = "30010"
-	REMOTE_PORT = "8888"
+	REMOTE_PORT = "30010"
 
 	PING_PERIOD = time.Millisecond
 )
