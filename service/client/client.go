@@ -10,11 +10,10 @@ import (
 
 const (
 	REMOTE_PORT = "30010"
-
 	PING_PERIOD = time.Millisecond
 )
 
-func Run(SERVER string, PERIOD int, ifname string) {
+func Run(SERVER string, PERIOD int, ifname string, debug bool) {
 	remoteAddr, err := net.ResolveTCPAddr("tcp", SERVER+":"+REMOTE_PORT)
 	exit_on_error(err)
 
@@ -34,7 +33,9 @@ func Run(SERVER string, PERIOD int, ifname string) {
 			conn, err := dialer.Dial("tcp", remoteAddr.String())
 			exit_on_error(err)
 			ping(conn, buf)
-			fmt.Printf("[%d] Sent data \n", c)
+			if debug {
+				fmt.Printf("[%d] Sent data \n", c)
+			}
 			c++
 		} else {
 			fmt.Printf("No interface with name %s\n", ifname)

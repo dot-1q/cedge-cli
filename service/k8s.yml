@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: cedge-service
-          image: docker.io/802dot1q/service:v0.0.2
+          image: docker.io/802dot1q/service:v0.0.3
           imagePullPolicy: Always
           resources:
             requests:

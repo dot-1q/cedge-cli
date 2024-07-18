@@ -12,7 +12,7 @@ const (
 	PORT = "8888"
 )
 
-func Run() {
+func Run(debug bool) {
 	addr, err := net.ResolveTCPAddr("tcp", HOST+":"+PORT)
 	exit_on_error(err)
 
@@ -28,16 +28,13 @@ func Run() {
 			fmt.Println(err)
 		} else {
 			connection++
-			go echo(conn, &connection)
+			go echo(conn, &connection, debug)
 		}
 	}
 }
 
-func echo(conn net.Conn, connection *int) {
+func echo(conn net.Conn, connection *int, debug bool) {
 	defer conn.Close()
-	defer fmt.Println("")
-
-	fmt.Printf("Connected to: %s\n", conn.RemoteAddr().String())
 
 	for {
 		buf := make([]byte, 1024)
@@ -50,7 +47,9 @@ func echo(conn net.Conn, connection *int) {
 			fmt.Println(err)
 			continue
 		}
-		fmt.Printf("[%d] Got data from: [%s]\n", *connection, conn.RemoteAddr().String())
+		if debug {
+			fmt.Printf("[%d] Got data from: [%s]\n", *connection, conn.RemoteAddr().String())
+		}
 		*connection++
 	}
 }
