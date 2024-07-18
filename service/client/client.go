@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"time"
 )
 
 const (
@@ -31,7 +32,7 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 			exit_on_error(err)
 			ping(conn, buf)
 			if debug {
-				fmt.Printf("[%d] Sent data \n", c)
+				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
 			}
 			c++
 		} else {
