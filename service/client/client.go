@@ -28,9 +28,8 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 			}
 			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
 
-			conn, err := dialer.Dial("tcp", remoteAddr.String())
+			conn, _ := dialer.Dial("tcp", remoteAddr.String())
 			conn.SetDeadline(time.Now().Add(1 * time.Second)) // Set 100ms timeout
-			exit_on_error(err)
 			ping(conn, buf)
 			if debug {
 				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
@@ -46,7 +45,9 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 
 func ping(conn net.Conn, msg []byte) {
 	_, err := conn.Write(msg)
-	exit_on_error(err)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func exit_on_error(err error) {
