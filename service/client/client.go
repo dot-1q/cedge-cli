@@ -29,13 +29,13 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
 
 			conn, _ := dialer.Dial("tcp", remoteAddr.String())
-			timeout := conn.SetDeadline(time.Now().Add(1 * time.Second)) // Set 1s timeout
+			timeout := conn.SetDeadline(time.Now().Add(3 * time.Second)) // Set 3s timeout
 			if timeout == nil {
 				ping(conn, buf)
+				c++
 				if debug {
 					fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
 				}
-				c++
 			} else {
 				if debug {
 					fmt.Printf("Operation timed out\n")
