@@ -26,10 +26,9 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 			ip := &net.TCPAddr{         // Convert to IPv4 address only
 				IP: address[0].(*net.IPNet).IP,
 			}
-			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
+			dialer := net.Dialer{LocalAddr: ip, Timeout: time.Second} // Create a dialer from a specific IP address.
 
 			conn, _ := dialer.Dial("tcp", remoteAddr.String())
-			conn.SetDeadline(time.Now().Add(1 * time.Second)) // Set 100ms timeout
 			ping(conn, buf)
 			if debug {
 				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
