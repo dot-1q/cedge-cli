@@ -2,6 +2,7 @@ package client
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -19,14 +20,10 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 	buf := createRandomData(size)
 	c := 0
 	for {
-		iface, err := net.InterfaceByName(ifname) // Get interface spec
+		addr, err := getIpv4(ifname)
 		// If interface exists, then send info
 		if err == nil {
-			address, _ := iface.Addrs() // Get its address
-			ip := &net.TCPAddr{         // Convert to IPv4 address only
-				IP: address[0].(*net.IPNet).IP,
-			}
-			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
+			dialer := net.Dialer{LocalAddr: &net.TCPAddr{IP: addr}} // Create a dialer from a specific IP address.
 
 			conn, _ := dialer.Dial("tcp", remoteAddr.String())
 			timeout := conn.SetDeadline(time.Now().Add(3 * time.Second)) // Set 3s timeout
@@ -63,4 +60,27 @@ func createRandomData(size int) []byte {
 	data := make([]byte, size)
 	rand.Read(data)
 	return data
+}
+
+func getIpv4(interfaceName string) (addr net.IP, err error) {
+	var (
+		ief      *net.Interface
+		addrs    []net.Addr
+		ipv4Addr net.IP
+	)
+	if ief, err = net.InterfaceByName(interfaceName); err != nil { // get interface
+		return
+	}
+	if addrs, err = ief.Addrs(); err != nil { // get addresses
+		return
+	}
+	for _, addr := range addrs { // get ipv4 address
+		if ipv4Addr = addr.(*net.IPNet).IP; ipv4Addr != nil {
+			break
+		}
+	}
+	if ipv4Addr == nil {
+		return net.IP{}, errors.New(fmt.Sprintf("Iface %s does not have an IPv4 address\n", interfaceName))
+	}
+	return ipv4Addr, nil
 }
