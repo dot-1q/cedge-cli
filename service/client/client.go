@@ -29,6 +29,7 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 			dialer := net.Dialer{LocalAddr: ip} // Create a dialer from a specific IP address.
 
 			conn, err := dialer.Dial("tcp", remoteAddr.String())
+			conn.SetDeadline(time.Now().Add(100 * time.Millisecond))
 			exit_on_error(err)
 			ping(conn, buf)
 			if debug {
