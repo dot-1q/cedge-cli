@@ -36,7 +36,9 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 			}
 			c++
 		} else {
-			fmt.Printf("No interface with name %s\n", ifname)
+			if debug {
+				fmt.Printf("No interface with name %s\n", ifname)
+			}
 		}
 	}
 }
