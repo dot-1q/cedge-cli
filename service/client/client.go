@@ -16,23 +16,30 @@ const (
 func Run(SERVER string, size int, ifname string, debug bool) {
 	remoteAddr, err := net.ResolveTCPAddr("tcp", SERVER+":"+REMOTE_PORT)
 	exit_on_error(err)
-
 	buf := createRandomData(size)
+
 	c := 0
 	for {
 		addr, err := getIpv4(ifname)
 		// If interface exists, then send info
 		if err == nil {
 			dialer := net.Dialer{LocalAddr: &net.TCPAddr{IP: addr}} // Create a dialer from a specific IP address.
-
 			conn, _ := dialer.Dial("tcp", remoteAddr.String())
-			timeout := conn.SetDeadline(time.Now().Add(3 * time.Second)) // Set 3s timeout
-			if timeout == nil {
-				ping(conn, buf)
-				c++
-				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
-			} else {
-				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
+			timeout := conn.SetDeadline(time.Now().Add(100 * time.Millisecond)) // Set 100s timeout
+			// Continuously send data from this connection.
+			restart := false
+			for !restart {
+				if timeout == nil {
+					ping(conn, buf)
+					c++
+					fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
+				} else {
+					fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
+					_, err := getIpv4(ifname)
+					if err != nil { // Means that this timeout is because of interface being down.
+						restart = true
+					}
+				}
 			}
 		} else {
 			if debug {
