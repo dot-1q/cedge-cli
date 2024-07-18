@@ -37,9 +37,7 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 					fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
 				}
 			} else {
-				if debug {
-					fmt.Printf("Operation timed out\n")
-				}
+				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
 			}
 		} else {
 			if debug {
