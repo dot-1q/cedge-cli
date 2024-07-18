@@ -5,20 +5,17 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"time"
 )
 
 const (
 	REMOTE_PORT = "30010"
-	PING_PERIOD = time.Millisecond
 )
 
-func Run(SERVER string, PERIOD int, ifname string, debug bool) {
+func Run(SERVER string, size int, ifname string, debug bool) {
 	remoteAddr, err := net.ResolveTCPAddr("tcp", SERVER+":"+REMOTE_PORT)
 	exit_on_error(err)
 
-	buf := createRandomData()
-	sleepTime := PING_PERIOD * time.Duration(PERIOD)
+	buf := createRandomData(size)
 	c := 0
 	for {
 		iface, err := net.InterfaceByName(ifname) // Get interface spec
@@ -40,8 +37,6 @@ func Run(SERVER string, PERIOD int, ifname string, debug bool) {
 		} else {
 			fmt.Printf("No interface with name %s\n", ifname)
 		}
-		// Sleep for an amount of time passed as input.
-		time.Sleep(sleepTime)
 	}
 }
 
@@ -57,8 +52,8 @@ func exit_on_error(err error) {
 	}
 }
 
-func createRandomData() []byte {
-	data := make([]byte, 2048)
+func createRandomData(size int) []byte {
+	data := make([]byte, size)
 	rand.Read(data)
 	return data
 }
