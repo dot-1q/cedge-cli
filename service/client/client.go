@@ -2,19 +2,14 @@ package client
 
 import (
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"net"
 	"os"
 	"time"
 )
 
-const (
-	REMOTE_PORT = "30010"
-)
-
-func Run(SERVER string, size int, ifname string, debug bool) {
-	remoteAddr, err := net.ResolveTCPAddr("tcp", SERVER+":"+REMOTE_PORT)
+func Run(server string, port string, size int, ifname string, debug bool) {
+	remoteAddr, err := net.ResolveTCPAddr("tcp", server+":"+port)
 	exit_on_error(err)
 	buf := createRandomData(size)
 
@@ -25,21 +20,14 @@ func Run(SERVER string, size int, ifname string, debug bool) {
 		if err == nil {
 			dialer := net.Dialer{LocalAddr: &net.TCPAddr{IP: addr}} // Create a dialer from a specific IP address.
 			conn, _ := dialer.Dial("tcp", remoteAddr.String())
-			timeout := conn.SetDeadline(time.Now().Add(100 * time.Millisecond)) // Set 100s timeout
+			timeout := conn.SetDeadline(time.Now().Add(100 * time.Millisecond)) // Set 100ms timeout
 			// Continuously send data from this connection.
-			restart := false
-			for !restart {
-				if timeout == nil {
-					ping(conn, buf)
-					c++
-					fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
-				} else {
-					fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
-					_, err := getIpv4(ifname)
-					if err != nil { // Means that this timeout is because of interface being down.
-						restart = true
-					}
-				}
+			if timeout == nil {
+				ping(conn, buf)
+				c++
+				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
+			} else {
+				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
 			}
 		} else {
 			if debug {
@@ -87,7 +75,7 @@ func getIpv4(interfaceName string) (addr net.IP, err error) {
 		}
 	}
 	if ipv4Addr == nil {
-		return net.IP{}, errors.New(fmt.Sprintf("Iface %s does not have an IPv4 address\n", interfaceName))
+		return net.IP{}, fmt.Errorf(fmt.Sprintf("Iface %s does not have an IPv4 address\n", interfaceName))
 	}
 	return ipv4Addr, nil
 }
