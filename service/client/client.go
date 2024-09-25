@@ -20,7 +20,7 @@ func Run(server string, port string, size int, ifname string, debug bool) {
 		if err == nil {
 			dialer := net.Dialer{LocalAddr: &net.TCPAddr{IP: addr}} // Create a dialer from a specific IP address.
 			conn, _ := dialer.Dial("tcp", remoteAddr.String())
-			timeout := conn.SetDeadline(time.Now().Add(100 * time.Millisecond)) // Set 100ms timeout
+			timeout := conn.SetDeadline(time.Now().Add(1000 * time.Millisecond)) // Set 1000ms timeout
 			// Continuously send data from this connection.
 			if timeout == nil {
 				ping(conn, buf)
@@ -28,7 +28,6 @@ func Run(server string, port string, size int, ifname string, debug bool) {
 				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
 			} else {
 				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
-				return
 			}
 		} else {
 			if debug {
