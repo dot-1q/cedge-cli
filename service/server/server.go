@@ -45,7 +45,7 @@ func echo(conn net.Conn, connection *int, debug bool) {
 		if err != nil {
 			fmt.Println("Error reading:")
 			fmt.Println(err)
-			continue
+			return
 		}
 		if debug {
 			fmt.Printf("[%d] Got data from: [%s]\n", *connection, conn.RemoteAddr().String())

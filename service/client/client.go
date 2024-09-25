@@ -28,6 +28,7 @@ func Run(server string, port string, size int, ifname string, debug bool) {
 				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
 			} else {
 				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
+				return
 			}
 		} else {
 			if debug {

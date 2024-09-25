@@ -6,15 +6,16 @@ subscribers uplink and downlink network throughput.
 
 import requests
 import time
+import sys
 
 # Move ue
-def move_ue(imsi, slice):
+def move_ue(imsi, slice, ue):
     req_body = {
         "enterprise": "ua",
         "site": "site1",
         "old-dg": "device-group-1",
         "new-dg": "device-group-3",
-        "device-id": "ua-ue-0",
+        "device-id": "ua-ue-"+ue,
     }
     url = "http://cedge-api:8080/move_ue"
     response = requests.post(url, json=req_body)
@@ -102,19 +103,22 @@ def edit_slice(slice, value):
     return response
 
 
-done = False
-while 1:
-    time.sleep(3)
-    # listUpfs = get_site_upfs("ua", "site1")
-    # for upf in listUpfs:
-    #     val = get_upf_ul(upf)
-    #     # If there's no values for the UPF
-    #     if val == None:
-    #         continue
-    #     print("{u} has bw: {b}".format(u=upf, b=val))
-    #     if upf == "upf1" and val < 40:
-    #         r = edit_slice("slice3", 10000000)
-    #         print("Edited slice")
-    if not done:
-        done = True
-        move_ue("imsi", "slice")
+move_ue(None,None,sys.argv[1])
+print("Moved UE ",sys.argv[1])
+
+# done = False
+# while 1:
+#     time.sleep(3)
+#     # listUpfs = get_site_upfs("ua", "site1")
+#     # for upf in listUpfs:
+#     #     val = get_upf_ul(upf)
+#     #     # If there's no values for the UPF
+#     #     if val == None:
+#     #         continue
+#     #     print("{u} has bw: {b}".format(u=upf, b=val))
+#     #     if upf == "upf1" and val < 40:
+#     #         r = edit_slice("slice3", 10000000)
+#     #         print("Edited slice")
+#     if not done:
+#         done = True
+#         move_ue("imsi", "slice")
