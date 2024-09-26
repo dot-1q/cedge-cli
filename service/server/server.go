@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"time"
 )
 
 const (
@@ -39,6 +40,7 @@ func echo(conn net.Conn, connection *int, debug bool) {
 	for {
 		buf := make([]byte, 1024)
 		_, err := conn.Read(buf)
+		conn.SetDeadline(time.Now().Add(1000 * time.Millisecond))
 		if err == io.EOF {
 			return
 		}
