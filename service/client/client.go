@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Run(server string, port string, size int, ifname string, debug bool) {
+func Run(server string, port string, size int, sleep int, ifname string, debug bool) {
 	remoteAddr, err := net.ResolveTCPAddr("tcp", server+":"+port)
 	exit_on_error(err)
 	buf := createRandomData(size)
@@ -29,6 +29,7 @@ func Run(server string, port string, size int, ifname string, debug bool) {
 			} else {
 				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
 			}
+			time.Sleep(time.Duration(sleep * int(time.Millisecond)))
 		} else {
 			if debug {
 				fmt.Printf("No interface with name %s\n", ifname)
