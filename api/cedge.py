@@ -347,7 +347,7 @@ def get_subscribers_by_slice(slice):
 # Get the IP address of a given IMSI
 @app.route("/get_ue_ip/<imsi>", methods=["GET"])
 def get_ue_ip(imsi):
-    url = "http://metricfunc:9301/nmetric-func/v1/subscriber/" + imsi
+    url = "http://metricfunc:9301/nmetric-func/v1/subscriber/imsi-" + imsi
     data = requests.get(url).json()
     try:
         return data["ipaddress"]
