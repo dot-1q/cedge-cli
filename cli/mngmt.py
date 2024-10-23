@@ -307,7 +307,7 @@ def create_upf(ctx, upf_id, un, ud, ap):
 )
 @click.option(
     "--mbr_dl_bs",
-    default=12500000,
+    default=2000000,
     type=click.INT,
     help="Slice MBR Downlink Burst Size",
     show_default=True,
@@ -321,7 +321,7 @@ def create_upf(ctx, upf_id, un, ud, ap):
 )
 @click.option(
     "--mbr_ul_bs",
-    default=12500000,
+    default=2000000,
     type=click.INT,
     help="Slice MBR Uplink Burst Size",
     show_default=True,
