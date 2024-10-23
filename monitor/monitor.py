@@ -6,16 +6,16 @@ subscribers uplink and downlink network throughput.
 
 import requests
 import time
-import sys
+
 
 # Move ue
-def move_ue(imsi, slice, ue):
+def move_ue(ue):
     req_body = {
         "enterprise": "ua",
         "site": "site1",
         "old-dg": "device-group-1",
         "new-dg": "device-group-3",
-        "device-id": "ua-ue-"+ue,
+        "device-id": "ua-ue-" + ue,
     }
     url = "http://cedge-api:8080/move_ue"
     response = requests.post(url, json=req_body)
@@ -29,14 +29,17 @@ def create_upf():
 
 
 # Create a SLICE for the new subscribers
-# Similarly to the UPF creation, this is to give connectivity to the new subcribers
+# Similarly to the UPF creation, this is to give connectivity to the new subscribers
 def create_slice():
     pass
 
 
 # From a given IMSI, get its IP, if its connected to the network.
 def get_ue_ip(imsi):
-    pass
+    url = "http://cedge-api:8080/get_ue_ip/{imsi}".format(imsi=imsi)
+    response = requests.get(url)
+
+    return response.content.decode("utf-8")
 
 
 def get_upf_ul(upf):
@@ -77,7 +80,7 @@ def get_sub_ul(ip_addr):
         value = float(response.content.decode("utf-8")) / 10**6
     except:
         # If the above code fails, i.e, no values are given, we return 0
-        value = None
+        value = 0
     return value
 
 
@@ -103,22 +106,33 @@ def edit_slice(slice, value):
     return response
 
 
-move_ue(None,None,sys.argv[1])
-print("Moved UE ",sys.argv[1])
+below_threshold = 0
+while 1:
+    imsi = "208990000000000"
+    ue_ip = get_ue_ip(imsi)
+    ue_bw = get_sub_ul(ue_ip)
+    print(f"IMSI: {imsi} has IP: {ue_ip} and bandwidth value: {ue_bw}")
 
-# done = False
-# while 1:
-#     time.sleep(3)
-#     # listUpfs = get_site_upfs("ua", "site1")
-#     # for upf in listUpfs:
-#     #     val = get_upf_ul(upf)
-#     #     # If there's no values for the UPF
-#     #     if val == None:
-#     #         continue
-#     #     print("{u} has bw: {b}".format(u=upf, b=val))
-#     #     if upf == "upf1" and val < 40:
-#     #         r = edit_slice("slice3", 10000000)
-#     #         print("Edited slice")
-#     if not done:
-#         done = True
-#         move_ue("imsi", "slice")
+    if ue_bw < 45.0 and ue_bw > 0:
+        print(f"IMSI: {imsi} Bandwidth value below threshold")
+        # Check if this IMSI bw value has been below threshold for more than 3 consecutive seconds
+        if below_threshold > 3:
+            print("Moving UE with least priority to another slice")
+            move_ue("2")
+        below_threshold += 1
+    else:
+        below_threshold = 0
+    # ?????????????????????????????????????????
+    # ?????????????????????????????????????????
+    # ?????????????????????????????????????????
+    # How to check if an IMSI is below threshold, i.e, in a congested environment,
+    # or just utilizing less bandwidth because it doesnt require more?
+    # I think the best way is to subtract the current Bandwidth utilized by the UE from the
+    # Total free Bandwidth available. If a slice has 75Mbps capacity, the UE is using 15Mbps, and
+    # there plenty (75-15)Mbps bandwidth available, that means it just
+    # doesnt require more than that, not that it is congested
+    # Conversely, if there's no more free bandwidth, the whole space is being utilized and
+    # the bandwidth dips below the threshold, means its congested.
+
+    # Sleep 1 second
+    time.sleep(1)

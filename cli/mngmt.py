@@ -28,6 +28,13 @@ url_argocd = "https://" + spec["amp"] + ":30001/api/v1/"
 @click.pass_context
 def aether_cli(ctx, enterprise, site):
     """
+
+    Args:
+        ctx ():
+        enterprise ():
+        site ():
+    """
+    """
     Command line tool to manage Aether's ROC.
 
     An enterprise and site name need to be passed as all API endpoints require it.
