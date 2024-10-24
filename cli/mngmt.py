@@ -923,18 +923,15 @@ def delete_app(ctx, app_name):
 
     APP_NAME is a unique identifier for the deployment of an application.
     """
-
     # Use the Argocd API to create the upf app deployment
     token = _get_argocd_token()
     headers = {
         "Authorization": "Bearer " + token,
     }
-
     # Send POST
-    response = requests.delete(
-        url_argocd + "applications/" + app_name, headers=headers, verify=False
-    )
-
+    # Have to insert an empty json for whatever reason. Even when the API doesn't expect a json requests
+    response = requests.delete(url_argocd + "applications/" + app_name, 
+                             headers=headers, json="", verify=False)
     print(response)
 
 
