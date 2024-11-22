@@ -43,6 +43,7 @@ dev:
           - Dockerfile
           - devspace.yaml
           - k8s.yml
+          - monitor.pcap
           - venv/
     # Open a terminal and use the following command to start it
     terminal:

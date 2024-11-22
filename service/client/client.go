@@ -25,7 +25,7 @@ func Run(server string, port string, size int, sleep int, ifname string, debug b
 			if timeout == nil {
 				ping(conn, buf)
 				c++
-				fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
+				// fmt.Printf("[%d] Sent data | Timestamp: %s\n", c, time.Now().UTC().Format("15:04:05"))
 			} else {
 				fmt.Printf("Operation timed out | Timestamp: %s\n", time.Now().UTC().Format("15:04:05"))
 			}

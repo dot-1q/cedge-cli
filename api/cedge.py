@@ -271,7 +271,7 @@ def create_upf():
 def get_sub_ul(sub):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = '8 * avg_over_time(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[13579]", ue_ip="{s}"}}[5s])'.format(
+    query = '8 * avg_over_time(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[13579]", ue_ip="{s}"}}[10s])'.format(
         s=sub
     )
 
@@ -288,7 +288,7 @@ def get_sub_ul(sub):
 def get_sub_dl(sub):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = '8 * avg_over_time(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[02468]", ue_ip="{s}"}}[5s])'.format(
+    query = '8 * avg_over_time(upf_session_tx_bytes{{namespace="upf1",pdr=~".*[02468]", ue_ip="{s}"}}[10s])'.format(
         s=sub
     )
 
@@ -388,7 +388,7 @@ def edit_slice():
 def get_upf_ul(upf):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = 'sum(8 * rate(upf_bytes_count{{dir="tx",iface="Core", namespace="{upf_id}"}}[5s]))'.format(
+    query = 'sum(8 * rate(upf_bytes_count{{dir="tx",iface="Core", namespace="{upf_id}"}}10s]))'.format(
         upf_id=upf
     )
     response = requests.get(url + query, verify=False).json()
@@ -404,7 +404,7 @@ def get_upf_ul(upf):
 def get_upf_dl(upf):
     # Send POST
     url = "http://rancher-monitoring-prometheus.cattle-monitoring-system:9090/api/v1/query?query="
-    query = 'sum(8 * rate(upf_bytes_count{{dir="tx",iface="Access", namespace="{upf_id}"}}[5s]))'.format(
+    query = 'sum(8 * rate(upf_bytes_count{{dir="tx",iface="Access", namespace="{upf_id}"}}[10s]))'.format(
         upf_id=upf
     )
     response = requests.get(url + query, verify=False).json()

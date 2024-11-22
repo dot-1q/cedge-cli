@@ -1,5 +1,5 @@
 """
-Monitoring process that will be responsible for detecting 
+Monitoring process that will be responsible for detecting
 and act upon the network changes, more specifically,
 subscribers uplink and downlink network throughput.
 """
@@ -107,18 +107,26 @@ def edit_slice(slice, value):
 
 
 below_threshold = 0
+moved = False
 while 1:
     imsi = "208990000000000"
     ue_ip = get_ue_ip(imsi)
     ue_bw = get_sub_ul(ue_ip)
     print(f"IMSI: {imsi} has IP: {ue_ip} and bandwidth value: {ue_bw}")
 
-    if ue_bw < 45.0 and ue_bw > 0:
+    if ue_bw < 40.0 and ue_bw > 0:
         print(f"IMSI: {imsi} Bandwidth value below threshold")
         # Check if this IMSI bw value has been below threshold for more than 3 consecutive seconds
-        if below_threshold > 3:
-            print("Moving UE with least priority to another slice")
-            move_ue("2")
+        if below_threshold >= 2 and not moved:
+            # print("Moving UE with least priority to another slice")
+            # move_ue("2")
+
+            print("Restricting slice 3 to lower bandwidth")
+            edit_slice("slice3", 15000000)
+
+            print("Adding the leftover to slice 1 ")
+            edit_slice("slice1", 85000000)
+            moved = True
         below_threshold += 1
     else:
         below_threshold = 0

@@ -38,7 +38,7 @@ func echo(conn net.Conn, connection *int, debug bool) {
 	defer conn.Close()
 
 	for {
-		buf := make([]byte, 1024)
+		buf := make([]byte, 10240)
 		_, err := conn.Read(buf)
 		conn.SetDeadline(time.Now().Add(1000 * time.Millisecond))
 		if err == io.EOF {
